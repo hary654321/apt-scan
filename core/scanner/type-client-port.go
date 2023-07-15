@@ -41,7 +41,7 @@ func NewPortScanner(config *Config, taskId string) *PortClient {
 	client.pool.Function = func(in interface{}) {
 		//println(1)
 		nmap := gonmap.New()
-		nmap.SetTimeout(time.Second * 10)
+		nmap.SetTimeout(time.Second * time.Duration(config.Timeout))
 		//if config.DeepInspection == true {
 		//	nmap.OpenDeepIdentify()
 		//}
@@ -55,7 +55,7 @@ func NewPortScanner(config *Config, taskId string) *PortClient {
 			}
 		} else {
 			//具体进行端口扫描
-			status, response := nmap.ScanTimeout(value.addr.String(), value.num, time.Second*2)
+			status, response := nmap.ScanTimeout(value.addr.String(), value.num, time.Second*time.Duration(config.Timeout))
 			slog.Println(slog.DEBUG, "port status", value.addr.String(), ":", value.num, status.String(), response)
 			switch status {
 			case gonmap.Closed:
