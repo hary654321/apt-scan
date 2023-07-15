@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/hary654321/gonmap"
+	"github.com/lcvvvv/gonmap"
 )
 
 type foo1 struct {

@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/hary654321/gonmap"
 	"github.com/lcvvvv/appfinger"
+	"github.com/lcvvvv/gonmap"
 )
 
 type PortTask struct {
