@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"ias_tool_v2/core/slog"
 	"ias_tool_v2/core/udp"
 	"ias_tool_v2/core/utils"
 	"net"
@@ -55,7 +56,7 @@ func NewPortScanner(config *Config, taskId string) *PortClient {
 		} else {
 			//具体进行端口扫描
 			status, response := nmap.ScanTimeout(value.addr.String(), value.num, time.Second*2)
-			//slog.Println(slog.DEBUG, "端口状态：", value.addr.String(), ":", value.num, status.String(), response)
+			slog.Println(slog.DEBUG, "port status", value.addr.String(), ":", value.num, status.String(), response)
 			switch status {
 			case gonmap.Closed:
 				client.HandlerClosed(value.addr, value.num)

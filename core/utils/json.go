@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"ias_tool_v2/config"
 	"ias_tool_v2/core/slog"
 
 	"os"
@@ -18,7 +19,7 @@ func WriteJson(path string, data interface{}) {
 	if err != nil {
 		slog.Println(slog.DEBUG, err)
 	}
-	path = "./scn/r/port/" + path
+	path = config.CoreConf.ResPath + path
 
 	f, err := os.OpenFile(path, os.O_CREATE+os.O_RDWR+os.O_APPEND, 0764)
 	if err != nil {

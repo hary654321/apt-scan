@@ -25,4 +25,5 @@ type coreConf struct {
 	ApiPort     int    `json:"apiPort"`
 	HttpsServer bool   `json:"https"`
 	BasicAuth   string `json:"basicAuth"`
+	ResPath     string
 }

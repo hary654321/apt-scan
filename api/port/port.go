@@ -36,6 +36,7 @@ func Start(ctx *gin.Context) {
 
 	for _, addr := range params.ScanAddrs {
 		netloc, port := utils.SplitWithNetlocPort(addr)
+		slog.Println(slog.DEBUG, "ip"+netloc, "port", port)
 		go portScanner.Push(net.ParseIP(netloc), port)
 	}
 

@@ -2,3 +2,4 @@
 BasicAuth = "Basic enc6Y2g="
 HttpsServer = true
 ApiPort = 61666
+ResPath = "./scn/r/port/"
