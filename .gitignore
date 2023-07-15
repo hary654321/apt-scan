@@ -16,3 +16,6 @@
 *.sln
 *.sw
 /vendor/
+
+#
+./scn

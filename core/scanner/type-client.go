@@ -37,3 +37,6 @@ func (c *client) RunningThreads() int {
 func newConfig(config *Config, threads int) *client {
 	return &client{config, pool.New(threads), func() {}}
 }
+
+
+

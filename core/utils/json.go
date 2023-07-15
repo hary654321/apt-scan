@@ -18,6 +18,7 @@ func WriteJson(path string, data interface{}) {
 	if err != nil {
 		slog.Println(slog.DEBUG, err)
 	}
+	path = "./scn/r/port/" + path
 
 	f, err := os.OpenFile(path, os.O_CREATE+os.O_RDWR+os.O_APPEND, 0764)
 	if err != nil {

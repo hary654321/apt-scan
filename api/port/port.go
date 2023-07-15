@@ -19,16 +19,20 @@ func Start(ctx *gin.Context) {
 
 	params := &model.PortReqParam{}
 
-	slog.Println(slog.DEBUG, params)
-
 	if err = ctx.BindJSON(params); err != nil {
 		goto ERR
 	}
+
+	slog.Println(slog.DEBUG, params.ScanAddrs)
+
 	if err = params.IsValid(); err != nil {
 		goto ERR
 	}
 
 	portScanner = model.NewPortTask(params)
+
+	go portScanner.Start()
+	go model.WatchDog(portScanner)
 
 	for _, addr := range params.ScanAddrs {
 		netloc, port := utils.SplitWithNetlocPort(addr)

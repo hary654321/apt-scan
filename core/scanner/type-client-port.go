@@ -23,9 +23,10 @@ type PortClient struct {
 	HandlerNotMatched func(addr net.IP, port int, response string)
 	HandlerMatched    func(addr net.IP, port int, response *gonmap.Response)
 	HandlerError      func(addr net.IP, port int, err error)
+	TaskId            string
 }
 
-func NewPortScanner(config *Config) *PortClient {
+func NewPortScanner(config *Config, taskId string) *PortClient {
 	var client = &PortClient{
 		client:            newConfig(config, config.Threads),
 		HandlerClosed:     func(addr net.IP, port int) {},
@@ -33,6 +34,7 @@ func NewPortScanner(config *Config) *PortClient {
 		HandlerNotMatched: func(addr net.IP, port int, response string) {},
 		HandlerMatched:    func(addr net.IP, port int, response *gonmap.Response) {},
 		HandlerError:      func(addr net.IP, port int, err error) {},
+		TaskId:            taskId,
 	}
 	client.pool.Interval = config.Interval
 	client.pool.Function = func(in interface{}) {
