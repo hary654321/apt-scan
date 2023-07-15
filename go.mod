@@ -4,10 +4,12 @@ go 1.19
 
 require (
 	github.com/BurntSushi/toml v0.3.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/hary654321/gonmap v0.0.0-20230117075752-514409cd7d07
 	github.com/lcvvvv/stdio v0.1.2
+	github.com/pkg/errors v0.9.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/shirou/gopsutil/v3 v3.23.6
 	github.com/unrolled/secure v1.0.9

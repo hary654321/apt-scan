@@ -3,6 +3,8 @@ package udp
 import (
 	"embed"
 	"errors"
+	"ias_tool_v2/core/slog"
+	"ias_tool_v2/core/utils"
 	"io"
 	"log"
 	"net"
@@ -11,8 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"zrWorker/core/slog"
-	utils2 "zrWorker/pkg/utils"
 )
 
 /*
@@ -648,7 +648,7 @@ func (v *VScan) parseProbesFromContent(content string) {
 		if lineTemp == "" || strings.HasPrefix(lineTemp, "#") {
 			continue
 		}
-		if utils2.GetStrACount("udp", lineTemp) <= 0 && utils2.GetStrACount("UDP", lineTemp) <= 0 {
+		if utils.GetStrACount("udp", lineTemp) <= 0 && utils.GetStrACount("UDP", lineTemp) <= 0 {
 			continue
 		}
 		lines = append(lines, lineTemp)

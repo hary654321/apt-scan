@@ -1,8 +1,9 @@
 package initialize
 
 import (
-	"github.com/gin-gonic/gin"
 	"ias_tool_v2/router"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Routers() *gin.Engine {
@@ -11,5 +12,6 @@ func Routers() *gin.Engine {
 	ApiGroup := Router.Group("/v1")
 	router.InitHealthRouter(ApiGroup)
 	router.InitProbeScanRouter(ApiGroup)
+	router.InitPortRouter(ApiGroup)
 	return Router
 }

@@ -1,8 +1,11 @@
-package hostinfo
+package port
 
 import (
-	"context"
+	"ias_tool_v2/core/scanner"
+	"ias_tool_v2/core/slog"
+	"ias_tool_v2/core/utils"
 	"ias_tool_v2/model"
+	"net"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,13 +13,14 @@ import (
 
 func Start(ctx *gin.Context) {
 	var (
-		err    error
-		task   *model.ProbeTask
-		ctxMe  context.Context
-		cancel context.CancelFunc
+		err         error
+		portScanner *scanner.PortClient
 	)
 
 	params := &model.PortReqParam{}
+
+	slog.Println(slog.DEBUG, params)
+
 	if err = ctx.BindJSON(params); err != nil {
 		goto ERR
 	}
@@ -24,19 +28,12 @@ func Start(ctx *gin.Context) {
 		goto ERR
 	}
 
-	ctxMe, cancel = context.WithCancel(context.Background())
-	task = model.NewPortTask(params)
-	task.ChangeTaskStatus(model.StatusEnum.Received)
+	portScanner = model.NewPortTask(params)
 
-	model.InsertCtx(task.TaskId, task.ServiceType, ctxMe, cancel)
-
-	go task.RecordProgress()
-
-	go task.RecordResult()
-
-	go task.Custom(ctxMe)
-
-	go task.Product(ctxMe, params)
+	for _, addr := range params.ScanAddrs {
+		netloc, port := utils.SplitWithNetlocPort(addr)
+		go portScanner.Push(net.ParseIP(netloc), port)
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,

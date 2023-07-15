@@ -4,10 +4,10 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"ias_tool_v2/core/slog"
+	"ias_tool_v2/core/utils"
 	"net"
 	"time"
-	"zrWorker/core/slog"
-	"zrWorker/pkg/utils"
 )
 
 var UdpPort = []int{20, 21, 53, 67, 68, 69, 123, 137, 138, 139, 161, 162, 500, 514, 520, 631, 1194, 1701, 1718, 1719, 1720, 1723, 1812, 1813, 1863, 1900, 4500, 2049}

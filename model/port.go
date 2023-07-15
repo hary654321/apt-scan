@@ -58,12 +58,12 @@ func DefaultConfig() *Config {
 // NewPortTask 根据用户请求的参数生成Port任务
 // tlsport 如果 addrs 元素port部分存在在tlsport下，则执行https逻辑
 
-var PortScanner *scanner.PortClient
+var EngineArr map[string]*scanner.PortClient //引擎数组
 
 func NewPortTask(p *PortReqParam) *scanner.PortClient {
 	PortConfig := scanner.DefaultConfig()
 	PortConfig.Threads = p.Threads
 	PortConfig.Timeout = time.Duration(p.Timeout) * time.Second // getTimeout(len(app.Setting.Port))
-	PortScanner = scanner.NewPortScanner(PortConfig)
-	return PortScanner
+	EngineArr[p.TaskId] = scanner.NewPortScanner(PortConfig)
+	return EngineArr[p.TaskId]
 }

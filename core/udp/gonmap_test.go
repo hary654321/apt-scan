@@ -1,8 +1,8 @@
 package udp
 
 import (
+	"ias_tool_v2/core/utils"
 	"testing"
-	"zrWorker/pkg/utils"
 )
 
 // 文件是   https://svn.nmap.org/nmap/nmap-service-probes

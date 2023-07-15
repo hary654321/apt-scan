@@ -1,6 +1,6 @@
 package scanner
 
-import "zrWorker/lib/pool"
+import "ias_tool_v2/core/pool"
 
 type client struct {
 	config *Config

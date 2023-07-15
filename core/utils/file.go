@@ -4,11 +4,11 @@ import (
 	"archive/zip"
 	"bufio"
 	"fmt"
+	"ias_tool_v2/core/slog"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
-	"zrWorker/core/slog"
 
 	"github.com/pkg/errors"
 )
@@ -60,24 +60,6 @@ func Read(path string) string {
 		slog.Println(slog.DEBUG, err)
 	}
 	return string(content)
-}
-
-func WritePng(path string, buf []byte) {
-	//slog.Println(slog.WARN, path)
-	_, err := os.Stat(GetScreenPath())
-	if err != nil {
-		os.MkdirAll(GetScreenPath(), 0777)
-	}
-
-	f, err := os.OpenFile(path, os.O_CREATE+os.O_RDWR, 0664)
-	if err != nil {
-		slog.Println(slog.WARN, err)
-		return
-	}
-
-	f.Write(buf)
-
-	//slog.Println(slog.DEBUG, "图片写入完成")
 }
 
 // 压缩为zip格式

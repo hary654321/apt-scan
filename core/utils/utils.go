@@ -5,15 +5,15 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
+	"ias_tool_v2/core/slog"
 	"math/rand"
 	"net"
 	"os"
 	"strconv"
 	"time"
-	"zrWorker/core/slog"
-	"zrWorker/global"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 // 返回一个32位md5加密后的字符串
@@ -69,35 +69,6 @@ func MergeMap(x, y map[string]string) map[string]string {
 	}
 
 	return n
-}
-
-func GetLogPath(runTaskID string, name string) string {
-
-	path := global.ServerSetting.LogPath
-	if !PathExists(path) {
-		err := os.MkdirAll(path, 0777)
-		if err != nil {
-			slog.Println(slog.WARN, "新建日志目录失败")
-		}
-	}
-	//slog.Println(slog.INFO, path)
-	path = global.ServerSetting.LogPath + "/" + name + runTaskID + ".json"
-	return path
-}
-
-func GetScreenPath() string {
-
-	path := global.ServerSetting.LogPath + "/img/"
-	if !PathExists(path) {
-		err := os.MkdirAll(path, 0777)
-		if err != nil {
-			slog.Println(slog.WARN, "新建日志目录失败")
-		}
-	}
-
-	//slog.Println(slog.INFO, path)
-
-	return path
 }
 
 func PathExists(path string) bool {
