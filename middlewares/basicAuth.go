@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Open() gin.HandlerFunc {
+func BasicAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var code int
 		var data interface{}

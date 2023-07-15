@@ -1,13 +1,15 @@
 package router
 
 import (
+	"ias_tool_v2/api/hostinfo"
+	"ias_tool_v2/middlewares"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
-	"ias_tool_v2/middlewares"
-	"net/http"
-	"time"
 )
 
 func GetMemPercent() float64 {
@@ -27,9 +29,9 @@ func GetDiskPercent() float64 {
 }
 
 func InitHealthRouter(Router *gin.RouterGroup) {
-	PasswdCrackRouter := Router.Group("check").Use(middlewares.CostTime())
+	c := Router.Group("check").Use(middlewares.CostTime())
 	{
-		PasswdCrackRouter.GET("/health", func(context *gin.Context) {
+		c.GET("/health", func(context *gin.Context) {
 			memPercent := int(GetMemPercent())
 			if memPercent >= 80 {
 				context.JSON(http.StatusBadRequest, gin.H{
@@ -44,7 +46,7 @@ func InitHealthRouter(Router *gin.RouterGroup) {
 			})
 		})
 
-		PasswdCrackRouter.GET("/node_checker", func(context *gin.Context) {
+		c.GET("/node_checker", func(context *gin.Context) {
 			memPercent := int(GetMemPercent())
 			cpuPercent := int(GetCpuPercent())
 			diskPercent := int(GetDiskPercent())
@@ -56,5 +58,8 @@ func InitHealthRouter(Router *gin.RouterGroup) {
 				"dick_percent": diskPercent,
 			})
 		})
+
+		c.GET("/hostinfo", hostinfo.InfoGet)
+
 	}
 }
