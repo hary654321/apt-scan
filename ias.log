@@ -1,0 +1,4 @@
+[DEBUG]2021/12/01 16:26:49 logger.go:50: hello,korbin
+[INFO]2021/12/01 16:26:49 logger.go:54: hello,korbin
+[WARNING]2021/12/01 16:26:49 logger.go:58: hello,korbin
+[ERROR]2021/12/01 16:26:49 logger.go:62: hello,korbin

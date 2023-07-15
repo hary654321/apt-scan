@@ -1,0 +1,18 @@
+# local env files
+.env.local
+.env.*.local
+
+.codelog
+/web/node_modules/
+/pkg/third/xray_darwin_amd64
+/img/zrWorker-21-02-22(compose版).zip
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw
+/vendor/
