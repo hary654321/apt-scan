@@ -28,24 +28,9 @@ var (
 
 	PicklePath      = "pickle"
 	ServiceTypeNums = []string{"webDir", "passwd_crack", "sslCert", "probe", "webMgr", "srvIdent"}
-
-	NacosConfigList = make(map[string][2]string)
 )
 
-func init() {
-	NacosConfigList["user-agent"] = [2]string{"iastool-user-agent", "USER_AGENT"}
-
-	NacosConfigList["psd-user"] = [2]string{"iastool-crack-user", "PASSWD_CRACK"}
-	NacosConfigList["psd-passwd"] = [2]string{"iastool-crack-passwd", "PASSWD_CRACK"}
-
-	NacosConfigList["wdb-mini"] = [2]string{"iastool-web-dict-mini", "WEB_DICT"}
-	NacosConfigList["wdb-normal"] = [2]string{"iastool-web-dict-normal", "WEB_DICT"}
-	NacosConfigList["wdb-big"] = [2]string{"iastool-web-dict-big", "WEB_DICT"}
-
-	NacosConfigList["iasTool"] = [2]string{"ias-tool", "DEFAULT_GROUP"}
-}
-
-//GetPicklePaths 返回pickle路径
+// GetPicklePaths 返回pickle路径
 func GetPicklePaths() []string {
 	paths := make([]string, 0)
 	for _, path := range ServiceTypeNums {

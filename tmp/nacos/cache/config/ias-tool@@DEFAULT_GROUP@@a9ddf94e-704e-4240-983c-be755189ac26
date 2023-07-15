@@ -1,6 +1,0 @@
-{
-    "API接口服务端口": "提供web服务",
-    "apiPort": 61666,
-    "是否启用https": "格式为bool",
-    "https": true
-}

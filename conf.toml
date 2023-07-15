@@ -1,0 +1,4 @@
+# 认证密钥
+BasicAuth = "Basic enc6Y2g="
+HttpsServer = true
+ApiPort = 61666
