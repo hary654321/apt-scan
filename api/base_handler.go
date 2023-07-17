@@ -3,10 +3,12 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/gin-gonic/gin"
+	"ias_tool_v2/core/slog"
 	"ias_tool_v2/model"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type handler interface {
@@ -47,9 +49,11 @@ func (h *Handler) Result(ctx *gin.Context) {
 	case "probe":
 		probeTask, err = model.ProbeTaskDecode(params.TaskId, GetServiceType(ctx.Request.URL.String()))
 		if err != nil {
+			slog.Println(slog.DEBUG, err)
 			goto ERR
 		}
 		if res, err = probeTask.ReadResultFile(model.ProbeTask{}); err != nil {
+			slog.Println(slog.DEBUG, err)
 			goto ERR
 		}
 		probeTask.TruncateFile()

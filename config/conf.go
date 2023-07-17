@@ -26,4 +26,5 @@ type coreConf struct {
 	HttpsServer bool   `json:"https"`
 	BasicAuth   string `json:"basicAuth"`
 	ResPath     string
+	Version     string
 }

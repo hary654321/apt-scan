@@ -73,6 +73,15 @@ func init() {
 
 }
 
+func GetRunTasks() string {
+	ids := ""
+	for k, _ := range EngineArr {
+		ids += k
+	}
+
+	return ids
+}
+
 func NewPortTask(p *PortReqParam) *scanner.PortClient {
 	PortConfig := scanner.DefaultConfig()
 	PortConfig.Threads = p.Threads

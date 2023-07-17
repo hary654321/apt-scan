@@ -2,7 +2,10 @@ package router
 
 import (
 	"ias_tool_v2/api/hostinfo"
+	"ias_tool_v2/config"
+	"ias_tool_v2/core/utils"
 	"ias_tool_v2/middlewares"
+	"ias_tool_v2/model"
 	"net/http"
 	"time"
 
@@ -41,7 +44,7 @@ func InitHealthRouter(Router *gin.RouterGroup) {
 				return
 			}
 			context.JSON(http.StatusOK, gin.H{
-				"code": 200,
+				"code": http.StatusOK,
 				"msg":  "health",
 			})
 		})
@@ -51,7 +54,7 @@ func InitHealthRouter(Router *gin.RouterGroup) {
 			cpuPercent := int(GetCpuPercent())
 			diskPercent := int(GetDiskPercent())
 			context.JSON(http.StatusOK, gin.H{
-				"code":         200,
+				"code":         http.StatusOK,
 				"msg":          "health",
 				"cpu_percent":  cpuPercent,
 				"mem_percent":  memPercent,
@@ -60,6 +63,18 @@ func InitHealthRouter(Router *gin.RouterGroup) {
 		})
 
 		c.GET("/hostinfo", hostinfo.InfoGet)
+
+		c.GET("/heartbeat", func(c *gin.Context) {
+			data := make(map[string]interface{})
+			data["time"] = utils.GetTime()
+			data["version"] = config.CoreConf.Version
+			data["runningTasks"] = model.GetRunTasks()
+			c.JSON(http.StatusOK, gin.H{
+				"code": 200,
+				"msg":  "",
+				"data": data,
+			})
+		})
 
 	}
 }
