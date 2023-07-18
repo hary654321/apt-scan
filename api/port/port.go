@@ -1,6 +1,7 @@
 package port
 
 import (
+	"ias_tool_v2/config"
 	"ias_tool_v2/core/scanner"
 	"ias_tool_v2/core/slog"
 	"ias_tool_v2/core/utils"
@@ -34,6 +35,7 @@ func Start(ctx *gin.Context) {
 	go portScanner.Start()
 	go model.WatchDog(portScanner)
 
+	portScanner.Total = len(params.ScanAddrs)
 	for _, addr := range params.ScanAddrs {
 		netloc, port := utils.SplitWithNetlocPort(addr)
 		slog.Println(slog.DEBUG, "ip"+netloc, "port", port)
@@ -50,4 +52,59 @@ ERR:
 		"code": 400,
 		"msg":  err.Error(),
 	})
+}
+
+func Progress(ctx *gin.Context) {
+
+	taskid := ctx.Query("task_id")
+
+	portScanner := model.GetPortClient(taskid)
+
+	total := 0
+	run := 0
+	if portScanner == nil && !utils.PathExists(config.CoreConf.ResPath+taskid+".json") {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "错误的任务ID",
+		})
+		return
+	}
+
+	if portScanner == nil {
+		run = 0
+	} else {
+		run = portScanner.RunningThreads()
+		total = portScanner.Total
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":  200,
+		"msg":   "success",
+		"total": total,
+		"run":   run,
+	})
+	return
+
+}
+
+func Res(ctx *gin.Context) {
+
+	taskid := ctx.Query("task_id")
+
+	path := config.CoreConf.ResPath + taskid + ".json"
+	if !utils.PathExists(path) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "错误的任务ID",
+		})
+		return
+	}
+
+	data, _ := utils.ReadLineData(path)
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"msg":  "success",
+		"data": data,
+	})
+	return
 }

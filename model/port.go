@@ -185,3 +185,7 @@ func WatchDog(p *scanner.PortClient) {
 		time.Sleep(time.Second * 1)
 	}
 }
+
+func GetPortClient(taskId string) *scanner.PortClient {
+	return EngineArr[taskId]
+}

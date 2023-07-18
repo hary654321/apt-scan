@@ -24,6 +24,7 @@ type PortClient struct {
 	HandlerMatched    func(addr net.IP, port int, response *gonmap.Response)
 	HandlerError      func(addr net.IP, port int, err error)
 	TaskId            string
+	Total             int
 }
 
 func NewPortScanner(config *Config, taskId string) *PortClient {
