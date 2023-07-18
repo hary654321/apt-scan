@@ -127,6 +127,7 @@ func NewPortTask(p *PortReqParam) *scanner.PortClient {
 			"UdpInfo":   res,
 		}
 
+		m["runTaskID"] = runTaskID
 		utils.WriteJsonAny(runTaskID+".json", m)
 	}
 
@@ -144,7 +145,7 @@ func outputOpenResponse(runTaskID string, addr net.IP, port int) {
 		"Port":    strconv.Itoa(port),
 		"Keyword": "response is empty",
 	}
-
+	m["runTaskID"] = runTaskID
 	utils.WriteJsonString(runTaskID+".json", m)
 }
 
@@ -160,6 +161,7 @@ func outputUnknownResponse(runTaskID string, addr net.IP, port int, response str
 		"Port":     strconv.Itoa(port),
 		"Keyword":  "无法识别该协议",
 	}
+	m["runTaskID"] = runTaskID
 	utils.WriteJsonString(runTaskID+".json", m)
 }
 
@@ -170,6 +172,7 @@ func outputNmapFinger(runTaskID string, URL *url.URL, resp *gonmap.Response) {
 	m["Response"] = resp.Raw
 	m["IP"] = URL.Hostname()
 	m["Port"] = URL.Port()
+	m["runTaskID"] = runTaskID
 
 	utils.WriteJsonString(runTaskID+".json", m)
 }
