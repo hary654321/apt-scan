@@ -56,8 +56,17 @@ ERR:
 
 func Progress(ctx *gin.Context) {
 
-	taskid := ctx.Query("task_id")
+	params := &model.GetTaskID{}
 
+	if err := ctx.BindJSON(params); err != nil {
+		slog.Println(slog.DEBUG, err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "参数错误",
+		})
+		return
+	}
+	taskid := params.TaskId
 	portScanner := model.GetPortClient(taskid)
 
 	total := 0
@@ -78,10 +87,10 @@ func Progress(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"code":  200,
-		"msg":   "success",
-		"total": total,
-		"run":   run,
+		"code":     200,
+		"msg":      "success",
+		"all_addr": total,
+		"ok_addr":  total - run,
 	})
 	return
 
@@ -89,7 +98,17 @@ func Progress(ctx *gin.Context) {
 
 func Res(ctx *gin.Context) {
 
-	taskid := ctx.Query("task_id")
+	params := &model.GetTaskID{}
+
+	if err := ctx.BindJSON(params); err != nil {
+		slog.Println(slog.DEBUG, err)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": 400,
+			"msg":  "参数错误",
+		})
+		return
+	}
+	taskid := params.TaskId
 
 	path := config.CoreConf.ResPath + taskid + ".json"
 	if !utils.PathExists(path) {
@@ -104,7 +123,7 @@ func Res(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "success",
-		"data": data,
+		"res":  data,
 	})
 	return
 }

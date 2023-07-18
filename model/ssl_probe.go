@@ -7,12 +7,13 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"ias_tool_v2/logger"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type ProbeTask struct {
@@ -28,8 +29,13 @@ type Probe struct {
 	Payload   *string `json:"payload" validate:"required,required"`
 }
 
+// GetID get task id in post
+type GetTaskID struct {
+	TaskId string `json:"task_id" validate:"required"`
+}
+
 type ProbeReqParam struct {
-	TaskId      string   `json:"task_id" validate:"required"`                         //task id
+	GetTaskID
 	ScanAddrs   []string `json:"addrs" validate:"required,dive,required"`             //待扫描地址列表
 	Payloads    []Probe  `json:"payload,omitempty" validate:"required,dive,required"` //探针详情,http报文或者tcp报文
 	ServiceType string   `json:"service_type,required" validate:"required"`           //服务类型
@@ -37,7 +43,7 @@ type ProbeReqParam struct {
 	Threads     int      `json:"threads" validate:"min=1,max=8192,required"`          //最大执行goroutine数量
 }
 
-//ReqTcp tcp请求对象封装
+// ReqTcp tcp请求对象封装
 type ReqParams struct {
 	Addr      string `json:"addr"` //ip:port
 	Timeout   int    `json:"-"`    //请求超时时间
@@ -45,7 +51,7 @@ type ReqParams struct {
 	ProbeName string `json:"probe_name"`
 }
 
-//IsValid 校验参数
+// IsValid 校验参数
 func (request *ProbeReqParam) IsValid() (err error) {
 
 	validate := validator.New()
@@ -246,7 +252,7 @@ func PayloadPreHandle(decodedPayload, midHost string) string {
 	return build.String()
 }
 
-//Product 生产参数
+// Product 生产参数
 func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 
 	ctxSub, cancel := context.WithCancel(ctx)
@@ -283,7 +289,7 @@ EXIT:
 	logger.Infof("product: stop ok")
 }
 
-//Custom 消费者负责执行
+// Custom 消费者负责执行
 func (task *ProbeTask) Custom(ctx context.Context) {
 	ctxSub, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -313,7 +319,7 @@ EXIT:
 	logger.Infof("custom: stop ok")
 }
 
-//TlsRes tls相关信息
+// TlsRes tls相关信息
 type TlsRes struct {
 	Subject string
 	Before  string
@@ -326,13 +332,13 @@ type PeerProbeResult struct {
 	ResHex   string    `json:"res_hex"`
 }
 
-//SSLProbeResult 结果封装
+// SSLProbeResult 结果封装
 type SSLProbeResult struct {
 	ProbeResult *PeerProbeResult `json:"probe_result"`
 	SslResult   *TlsResult       `json:"ssl_result,omitempty"`
 }
 
-//Scan 探测实现
+// Scan 探测实现
 func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 	var resp []byte
 	res = &PeerProbeResult{}
@@ -370,7 +376,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 	return
 }
 
-//Encode 序列化任务结构体到文件
+// Encode 序列化任务结构体到文件
 func (task *ProbeTask) Encode() {
 	pickleFd, _ := os.OpenFile(task.PickleFilePath, os.O_WRONLY, 0666)
 	defer func(pickleFd *os.File) {
@@ -392,7 +398,7 @@ func (task *ProbeTask) ChangeTaskStatus(status int) {
 	task.Encode()
 }
 
-//ProbeTaskDecode 反序列化任务结构体到文件
+// ProbeTaskDecode 反序列化任务结构体到文件
 func ProbeTaskDecode(taskId, serviceType string) (*ProbeTask, error) {
 	task := &ProbeTask{}
 	picklePath := filepath.Join(PicklePathFolder(serviceType), taskId+".job")

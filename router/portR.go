@@ -11,7 +11,7 @@ func InitPortRouter(Router *gin.RouterGroup) {
 	p := Router.Group("port").Use(middlewares.CostTime())
 	{
 		p.POST("/start", port.Start)
-		p.GET("/progress", port.Progress)
-		p.GET("/res", port.Res)
+		p.POST("/progress", port.Progress)
+		p.POST("/result", port.Res)
 	}
 }
