@@ -158,7 +158,9 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 			ResHex:   "",
 		}
 	}
-	task.chResult <- res
+	if res.ProbeResult.ResPlain != "" {
+		task.chResult <- res
+	}
 	//TLS探测
 	if isTls == IsTLS {
 		tlsResult, err := Scan(params, IsTLS)
@@ -175,7 +177,9 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 			}
 		}
 	}
-	task.chResult <- res
+	if res.SslResult.Cert.Subject != "" {
+		task.chResult <- res
+	}
 	return
 }
 
