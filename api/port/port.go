@@ -70,7 +70,6 @@ func Progress(ctx *gin.Context) {
 	portScanner := model.GetPortClient(taskid)
 
 	total := 0
-	run := 0
 	if portScanner == nil && !utils.PathExists(config.CoreConf.ResPath+taskid+".json") {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": 400,
@@ -79,10 +78,11 @@ func Progress(ctx *gin.Context) {
 		return
 	}
 
+	var ok int
 	if portScanner == nil {
-		run = 0
+		ok = portScanner.Total
 	} else {
-		run = portScanner.RunningThreads()
+		ok = int(portScanner.Ok)
 		total = portScanner.Total
 	}
 
@@ -90,7 +90,8 @@ func Progress(ctx *gin.Context) {
 		"code":     200,
 		"msg":      "success",
 		"all_addr": total,
-		"ok_addr":  total - run,
+		"ok_addr":  ok,
+		"type":     "port",
 	})
 	return
 
