@@ -25,8 +25,9 @@ type ProbeTask struct {
 }
 
 type Probe struct {
-	ProbeName string  `json:"probe_name" validate:"required,required"`
-	Payload   *string `json:"payload" validate:"required,required"`
+	ProbeName      string  `json:"probe_name" validate:"required,required"`
+	ProbeProtocol string  `json:"probe_protocol" validate:"required,required"`
+	Payload        *string `json:"payload" validate:"required,required"`
 }
 
 // GetID get task id in post

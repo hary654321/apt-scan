@@ -11,41 +11,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/lcvvvv/appfinger"
 	"github.com/lcvvvv/gonmap"
 )
-
-type PortTask struct {
-	Task
-	ChReq       chan ReqParams `json:"request_tcp_param"` //待执行tcp参数的channel
-	Payloads    []Port         `json:"payload,omitempty"` //报文信息
-	Timeout     int            `json:"timeout"`           //读超时配置
-	ChMaxThread chan struct{}
-}
-
-type Port struct {
-	PortName string  `json:"Port_name" validate:"required,required"`
-	Payload  *string `json:"payload" validate:"required,required"`
-}
-
-type PortReqParam struct {
-	TaskId    string   `json:"task_id" validate:"required"`                //task id
-	ScanAddrs []string `json:"addrs" validate:"required,dive,required"`    //待扫描地址列表
-	Timeout   int      `json:"timeout,omitempty" validate:"required"`      //发起请求读超时
-	Threads   int      `json:"threads" validate:"min=1,max=8192,required"` //最大执行goroutine数量
-}
-
-// IsValid 校验参数
-func (request *PortReqParam) IsValid() (err error) {
-
-	validate := validator.New()
-	if err = validate.Struct(request); err != nil {
-		fmt.Println("字段校验出错", err.Error())
-		return err
-	}
-	return nil
-}
 
 type Config struct {
 	DeepInspection bool
@@ -82,7 +50,7 @@ func GetRunTasks() string {
 	return ids
 }
 
-func NewPortTask(p *PortReqParam) *scanner.PortClient {
+func NewPortTask(p *ProbeReqParam) *scanner.PortClient {
 	PortConfig := scanner.DefaultConfig()
 	PortConfig.Threads = p.Threads
 	PortConfig.Timeout = time.Duration(p.Timeout) * time.Second // getTimeout(len(app.Setting.Port))
@@ -103,12 +71,15 @@ func NewPortTask(p *PortReqParam) *scanner.PortClient {
 		URLRaw := fmt.Sprintf("%s://%s:%d", response.FingerPrint.Service, addr.String(), port)
 		URL, _ := url.Parse(URLRaw)
 		if appfinger.SupportCheck(URL.Scheme) == true {
-
+			//在这里处理http请求
 			//return
 		}
+
+		//继续探针扫描
 		outputNmapFinger(runTaskID, URL, response)
 
 	}
+
 	client.HandlerError = func(addr net.IP, port int, err error) {
 		slog.Println(slog.DEBUG, "PortScanner Error: ", fmt.Sprintf("%s:%d", addr.String(), port), err)
 	}

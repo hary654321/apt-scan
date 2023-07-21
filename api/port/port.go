@@ -18,7 +18,9 @@ func Start(ctx *gin.Context) {
 		portScanner *scanner.PortClient
 	)
 
-	params := &model.PortReqParam{}
+	params := &model.ProbeReqParam{
+		ServiceType: model.GetServiceType(ctx.Request.URL.String()),
+	}
 
 	if err = ctx.BindJSON(params); err != nil {
 		goto ERR

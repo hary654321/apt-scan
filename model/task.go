@@ -3,7 +3,6 @@ package model
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/wxnacy/wgo/file"
 	"ias_tool_v2/config"
 	"ias_tool_v2/logger"
 	"io"
@@ -12,6 +11,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/wxnacy/wgo/file"
 )
 
 type Tasker interface {
@@ -80,7 +81,7 @@ func PicklePathFolder(serviceType string) string {
 	}
 }
 
-//GetCurTaskFile 通过提交的服务类型和taskid返回对应的文件路径,!!!重要函数
+// GetCurTaskFile 通过提交的服务类型和taskid返回对应的文件路径,!!!重要函数
 func GetCurTaskFile(serviceType string, taskid string) (string, string, string) {
 	//获取存放结果的总目录
 	sysName := runtime.GOOS
@@ -109,7 +110,7 @@ func (t *Task) AddProgress() {
 	t.chProgress <- struct{}{}
 }
 
-//RecordProgress 记录进度信息
+// RecordProgress 记录进度信息
 func (t *Task) RecordProgress() {
 	index := 0
 
@@ -155,14 +156,14 @@ func GetServiceType(url string) string {
 	return strings.Split(url, "/")[2]
 }
 
-//RecordResult 记录进度信息
+// RecordResult 记录进度信息
 func (t *Task) RecordResult() {
 	for result := range t.chResult {
 		_ = t.WriteResult(result)
 	}
 }
 
-//WriteResult 封装写结果文件
+// WriteResult 封装写结果文件
 func (t *Task) WriteResult(content interface{}) (err error) {
 	var (
 		fd      *os.File
@@ -194,12 +195,12 @@ ERR:
 	return err
 }
 
-//truncateFile 清空结果文件
+// truncateFile 清空结果文件
 func (t *Task) TruncateFile() {
 	_ = os.Truncate(t.ResultFilePath, 0)
 }
 
-//ReadResultFile 读取结果文件
+// ReadResultFile 读取结果文件
 func (t *Task) ReadResultFile(result interface{}) (res []interface{}, err error) {
 	fi, _ := os.Open(t.ResultFilePath)
 
@@ -224,7 +225,7 @@ func (t *Task) ReadResultFile(result interface{}) (res []interface{}, err error)
 	return res, nil
 }
 
-//ReadProgressFile 读取进度
+// ReadProgressFile 读取进度
 func (t *Task) ReadProgressFile() (ok, all int) {
 	var (
 		buf []byte

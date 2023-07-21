@@ -1,7 +1,6 @@
 package ssl_probe
 
 import (
-	"context"
 	"ias_tool_v2/api"
 	"ias_tool_v2/core/slog"
 	"ias_tool_v2/model"
@@ -20,10 +19,7 @@ func GetPasswdCrackHandler() *ProbeHandler {
 
 func (p *ProbeHandler) Start(ctx *gin.Context) {
 	var (
-		err    error
-		task   *model.ProbeTask
-		ctxMe  context.Context
-		cancel context.CancelFunc
+		err error
 	)
 
 	params := &model.ProbeReqParam{
@@ -38,19 +34,7 @@ func (p *ProbeHandler) Start(ctx *gin.Context) {
 		goto ERR
 	}
 
-	ctxMe, cancel = context.WithCancel(context.Background())
-	task = model.NewProbeTask(params)
-	task.ChangeTaskStatus(model.StatusEnum.Received)
-
-	model.InsertCtx(task.TaskId, task.ServiceType, ctxMe, cancel)
-
-	go task.RecordProgress()
-
-	go task.RecordResult()
-
-	go task.Custom(ctxMe)
-
-	go task.Product(ctxMe, params)
+	model.ProbeScan(params)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
