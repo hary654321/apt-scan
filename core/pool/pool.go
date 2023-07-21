@@ -58,6 +58,8 @@ type Pool struct {
 	wg *sync.WaitGroup
 	//提前结束标识符
 	Done bool
+
+	DoneCount int32
 }
 
 // 实例化工作池使用
@@ -133,6 +135,8 @@ func (p *Pool) work() {
 		//工作结束，删除工作清单
 		p.JobsList.Delete(Tick)
 		atomic.AddInt32(&p.length, -1)
+
+		atomic.AddInt32(&p.DoneCount, 1)
 	}
 }
 

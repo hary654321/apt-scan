@@ -151,8 +151,8 @@ func outputNmapFinger(runTaskID string, URL *url.URL, resp *gonmap.Response) {
 func WatchDog(p *scanner.PortClient) {
 	time.Sleep(time.Second * 1)
 	for {
-		slog.Println(slog.WARN, "run --", p.RunningThreads())
-		if p.RunningThreads() == 0 {
+		slog.Println(slog.WARN, "totla --", p.Total, "done ---", p.DoneCount())
+		if p.Total == p.DoneCount() {
 			delete(EngineArr, p.TaskId)
 			break
 		}

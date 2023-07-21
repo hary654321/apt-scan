@@ -1,11 +1,9 @@
 package scanner
 
 import (
-	"ias_tool_v2/core/slog"
 	"ias_tool_v2/core/udp"
 	"ias_tool_v2/core/utils"
 	"net"
-	"sync/atomic"
 	"time"
 
 	"github.com/lcvvvv/gonmap"
@@ -27,7 +25,6 @@ type PortClient struct {
 	HandlerError      func(addr net.IP, port int, err error)
 	TaskId            string
 	Total             int
-	Ok                int32
 	Threads           int
 }
 
@@ -80,16 +77,13 @@ func NewPortScanner(config *Config, taskId string) *PortClient {
 func (c *PortClient) Push(ip net.IP, num int) {
 	for {
 
-		slog.Println(slog.DEBUG, "push", c.pool.Threads(), c.Threads)
+		// slog.Println(slog.DEBUG, "push", c.RunningThreads(), c.Threads)
 		if c.RunningThreads() < c.Threads {
 			c.pool.Push(foo1{ip, num})
-
-			atomic.AddInt32(&c.Ok, +1)
-
 			break
 		}
 
-		time.Sleep(time.Second * 1)
+		time.Sleep(time.Second * 100)
 	}
 
 }

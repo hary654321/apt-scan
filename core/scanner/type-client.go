@@ -34,9 +34,10 @@ func (c *client) RunningThreads() int {
 	return c.pool.RunningThreads()
 }
 
+func (c *client) DoneCount() int {
+	return int(c.pool.DoneCount)
+}
+
 func newConfig(config *Config, threads int) *client {
 	return &client{config, pool.New(threads), func() {}}
 }
-
-
-

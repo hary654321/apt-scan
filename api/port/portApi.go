@@ -71,7 +71,6 @@ func Progress(ctx *gin.Context) {
 	taskid := params.TaskId
 	portScanner := model.GetPortClient(taskid)
 
-	total := 0
 	if portScanner == nil && !utils.PathExists(config.CoreConf.ResPath+taskid+".json") {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": 400,
@@ -80,11 +79,12 @@ func Progress(ctx *gin.Context) {
 		return
 	}
 
-	var ok int
+	var ok, total int
 	if portScanner == nil {
-		ok = portScanner.Total
+		ok = 0
+		total = 0
 	} else {
-		ok = int(portScanner.Ok)
+		ok = portScanner.DoneCount()
 		total = portScanner.Total
 	}
 
