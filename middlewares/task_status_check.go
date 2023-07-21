@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"ias_tool_v2/api"
 	"ias_tool_v2/logger"
 	"ias_tool_v2/model"
@@ -10,9 +9,11 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
-//BaseParamsCheck 必要参数检查
+// BaseParamsCheck 必要参数检查
 func BaseParamsCheck() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if _, ok := ctx.Get("task_id"); !ok {

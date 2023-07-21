@@ -1,11 +1,14 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
+	"ias_tool_v2/config"
 	"ias_tool_v2/core/scanner"
 	"ias_tool_v2/core/slog"
 	"ias_tool_v2/core/udp"
 	"ias_tool_v2/core/utils"
+	"ias_tool_v2/define"
 	"net"
 	"net/url"
 	"strconv"
@@ -35,10 +38,15 @@ func DefaultConfig() *Config {
 // tlsport 如果 addrs 元素port部分存在在tlsport下，则执行https逻辑
 
 var EngineArr map[string]*scanner.PortClient //引擎数组
+var TakData map[string]*ProbeReqParam        //任务数据
 
 func init() {
-	EngineArr = make(map[string]*scanner.PortClient)
-
+	if EngineArr == nil {
+		EngineArr = make(map[string]*scanner.PortClient)
+	}
+	if TakData == nil {
+		TakData = make(map[string]*ProbeReqParam)
+	}
 }
 
 func GetRunTasks() string {
@@ -55,6 +63,7 @@ func NewPortTask(p *ProbeReqParam) *scanner.PortClient {
 	PortConfig.Threads = p.Threads
 	PortConfig.Timeout = time.Duration(p.Timeout) * time.Second // getTimeout(len(app.Setting.Port))
 	EngineArr[p.TaskId] = scanner.NewPortScanner(PortConfig, p.TaskId)
+	TakData[p.TaskId] = p
 	client := EngineArr[p.TaskId]
 	runTaskID := p.TaskId
 	client.HandlerClosed = func(addr net.IP, port int) {
@@ -152,8 +161,11 @@ func WatchDog(p *scanner.PortClient) {
 	time.Sleep(time.Second * 1)
 	for {
 		slog.Println(slog.WARN, "totla --", p.Total, "done ---", p.DoneCount())
-		if p.Total == p.DoneCount() {
+		if p.Total-p.DoneCount() <= 1 {
+			//进行探针扫描
+			ToProbeScan(TakData[p.TaskId])
 			delete(EngineArr, p.TaskId)
+			delete(TakData, p.TaskId)
 			break
 		}
 		time.Sleep(time.Second * 1)
@@ -162,4 +174,31 @@ func WatchDog(p *scanner.PortClient) {
 
 func GetPortClient(taskId string) *scanner.PortClient {
 	return EngineArr[taskId]
+}
+
+func ToProbeScan(p *ProbeReqParam) {
+
+	slog.Println(slog.DEBUG, "开始进行探针扫描")
+
+	path := config.CoreConf.ResPath + p.TaskId + ".json"
+
+	res, _ := utils.ReadLineData(path)
+
+	var portInfo define.Portres
+	var addrArr []string
+	for _, v := range res {
+		if err := json.Unmarshal([]byte(v), &portInfo); err != nil {
+			slog.Println(slog.DEBUG, "json读取失败==", err)
+			return
+		}
+		if portInfo.Service == "http" {
+			slog.Println(slog.DEBUG, portInfo.IP+":"+portInfo.Port)
+			addrArr = append(addrArr, portInfo.IP+":"+portInfo.Port)
+		}
+	}
+
+	//进行探针扫描
+	p.ScanAddrs = addrArr
+	p.ServiceType = "probe"
+	ProbeScan(p)
 }

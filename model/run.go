@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"ias_tool_v2/core/slog"
 )
 
 func ProbeScan(params *ProbeReqParam) {
@@ -11,6 +12,7 @@ func ProbeScan(params *ProbeReqParam) {
 		cancel context.CancelFunc
 	)
 
+	slog.Println(slog.DEBUG, params)
 	ctxMe, cancel = context.WithCancel(context.Background())
 	task = NewProbeTask(params)
 	task.ChangeTaskStatus(StatusEnum.Received)
