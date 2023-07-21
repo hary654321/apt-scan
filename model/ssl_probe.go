@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"ias_tool_v2/core/slog"
 	"ias_tool_v2/logger"
 	"log"
 	"os"
@@ -25,9 +26,9 @@ type ProbeTask struct {
 }
 
 type Probe struct {
-	ProbeName      string  `json:"probe_name" validate:"required,required"`
-	ProbeProtocol string  `json:"probe_protocol" validate:"required,required"`
-	Payload        *string `json:"payload" validate:"required,required"`
+	ProbeName     string  `json:"probe_name" validate:"required"`
+	ProbeProtocol string  `json:"probe_protocol" validate:"required"`
+	Payload       *string `json:"payload" validate:"required"`
 }
 
 // GetID get task id in post
@@ -211,7 +212,7 @@ func PayloadPreHandle(decodedPayload, midHost string) string {
 		return decodedPayload
 	}
 
-	if strings.Contains(decodedPayload, "\r\n\r\n") {
+	if strings.Contains(decodedPayload, "\r\n") {
 		var midPayload strings.Builder
 		var header string
 		var body string
@@ -274,6 +275,10 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 			for _, payload := range task.Payloads {
 				decodePayload, err := base64.StdEncoding.DecodeString(*payload.Payload)
 				strPayload := string(decodePayload)
+
+				slog.Println(slog.DEBUG, "payload:", strPayload)
+
+				slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
 				if err != nil {
 					logger.Errorf(err.Error())
 					continue
@@ -361,6 +366,8 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 		res.ResPlain = "tls " + string(resp)
 
 	} else if isTls == IsNotTLS {
+
+		slog.Println(slog.DEBUG, "tcp", req.Addr, "====", req.Payload)
 		resp, err = Conn("tcp", req.Addr, req.Payload, req.Timeout)
 		log.Println("Scan:", resp, err)
 		if err != nil {
