@@ -2,13 +2,23 @@ package utils
 
 import "strings"
 
-func Dealdata(m map[string]string) map[string]string {
-	if m["ProductName"] == "UOS" {
-		m["OperatingSystem"] = "统信UOS"
-	}
+var OsMap map[string]string = map[string]string{
+	"UOS":               "统信UOS",
+	"UOS_Desktop_104":   "统信UOS",
+	"(Uos)":             "统信UOS",
+	"AQUOS":             "统信UOS",
+	"(Ubuntu)":          "Ubuntu",
+	"Set-Cookie: AIROS": "Ubiquiti AirOS路由器",
+	"ciscoSystems":      "Cisco SNMP service",
+	"openeuler":         "openEuler OS",
+}
 
-	if strings.Contains(m["Response"], "UOS_Desktop_104") {
-		m["OperatingSystem"] = "统信UOS"
+func Dealdata(m map[string]string) map[string]string {
+
+	for k, v := range OsMap {
+		if strings.Contains(m["Response"], k) {
+			m["OperatingSystem"] = v
+		}
 	}
 
 	return m
