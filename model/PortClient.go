@@ -161,7 +161,7 @@ func WatchDog(p *scanner.PortClient) {
 	time.Sleep(time.Second * 1)
 	for {
 		slog.Println(slog.WARN, "totla --", p.Total, "done ---", p.DoneCount())
-		if p.Total-p.DoneCount() <= 10 {
+		if p.Total-p.DoneCount() <= 1 {
 			//进行探针扫描
 			ToProbeScan(TakData[p.TaskId])
 			delete(EngineArr, p.TaskId)
