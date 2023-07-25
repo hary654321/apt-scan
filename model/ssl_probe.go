@@ -355,7 +355,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 
 	if isTls == IsTLS {
 		resp, err = Conn("tls", req.Addr, req.Payload, req.Timeout)
-		log.Println("Scan:", resp, err)
+		// slog.Println(slog.DEBUG, "Scan:", resp, err)
 		if err != nil {
 			return res, err
 		}

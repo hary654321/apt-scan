@@ -154,6 +154,8 @@ func outputNmapFinger(runTaskID string, URL *url.URL, resp *gonmap.Response) {
 	m["Port"] = URL.Port()
 	m["runTaskID"] = runTaskID
 
+	m = utils.Dealdata(m)
+
 	utils.WriteJsonString(runTaskID+".json", m)
 }
 
