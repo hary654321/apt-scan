@@ -384,7 +384,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 	}
 
 	res.ReqInfo = req
-	res.ResHex = hex.EncodeToString(resp)
+	res.ResHex = hex.Dump(resp)
 	return
 }
 
