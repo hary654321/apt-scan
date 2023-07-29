@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"ias_tool_v2/config"
+	"ias_tool_v2/core/slog"
 	"io"
 	"log"
 	"math"
@@ -25,7 +26,7 @@ var TlsClientHelloPackage = "\x16\x03\x00\x00\x69\x01\x00\x00\x65\x03\x03U\x1c\x
 const IsTLS = 1
 const IsNotTLS = 0
 
-//LoadServiceResMap 根据传入的service_type 加载文件总路径
+// LoadServiceResMap 根据传入的service_type 加载文件总路径
 func LoadServiceResMap() (ServiceResMap map[string]map[string]string) {
 
 	ServiceResMap = make(map[string]map[string]string)
@@ -64,7 +65,7 @@ func LoadServiceResMap() (ServiceResMap map[string]map[string]string) {
 	return ServiceResMap
 }
 
-//PathExist 判断文件是否存在
+// PathExist 判断文件是否存在
 func PathExist(_path string) bool {
 	_, err := os.Stat(_path)
 	if err != nil && os.IsNotExist(err) {
@@ -73,7 +74,7 @@ func PathExist(_path string) bool {
 	return true
 }
 
-//GetResultPath 获取存放结果的总目录
+// GetResultPath 获取存放结果的总目录
 func GetResultPath(serviceType string) string {
 	sysName := runtime.GOOS
 	ServiceResMap := LoadServiceResMap()
@@ -84,6 +85,8 @@ func GetResultPath(serviceType string) string {
 func InitResPath() {
 	for _, serviceName := range config.ServiceTypeNums {
 		resPath := GetResultPath(serviceName)
+
+		slog.Println(slog.DEBUG, "InitResPath", "resPath", resPath)
 		if !PathExist(resPath) {
 			_ = os.MkdirAll(resPath, os.ModePerm)
 		}
@@ -99,12 +102,12 @@ func InitPickle() {
 	}
 }
 
-//MinInt 由于math.min只支持float 先这么封装下吧
+// MinInt 由于math.min只支持float 先这么封装下吧
 func MinInt(a, b int) (c int) {
 	return int(math.Min(float64(a), float64(b)))
 }
 
-//String2Bytes 字符串转bytes
+// String2Bytes 字符串转bytes
 func String2Bytes(s string) []byte {
 	sh := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	bh := reflect.SliceHeader{
@@ -130,7 +133,7 @@ func Byte2GzipBase64Encoding(buf []byte) (base64Encoded string, err error) {
 	return base64Encoded, nil
 }
 
-//String2GzipBase64Encoding  字符串类型gzip压缩并进行base64加密
+// String2GzipBase64Encoding  字符串类型gzip压缩并进行base64加密
 func String2GzipBase64Encoding(str string) (base64Encoded string, err error) {
 	var buffer bytes.Buffer
 	midByte := String2Bytes(str)
@@ -147,7 +150,7 @@ func String2GzipBase64Encoding(str string) (base64Encoded string, err error) {
 	return base64Encoded, nil
 }
 
-//BuildErr 封装error
+// BuildErr 封装error
 func BuildErr(show bool, err error, msgs ...string) string {
 	var _err string
 	for i, msg := range msgs {
@@ -177,7 +180,7 @@ func Conn(protocol, addr, payload string, timeout int) ([]byte, error) {
 			&tls.Config{InsecureSkipVerify: true},
 		)
 	} else {
-		conn, err = net.DialTimeout("tcp", addr, time.Duration(5) * time.Second)
+		conn, err = net.DialTimeout("tcp", addr, time.Duration(5)*time.Second)
 	}
 	if err != nil {
 		log.Println("conn:", err)
@@ -200,8 +203,12 @@ func Conn(protocol, addr, payload string, timeout int) ([]byte, error) {
 		if err == nil || err == io.EOF {
 			ioErr := err
 			_, err = buf.Write(tmp)
-			if err != nil { log.Println("read write2buf:", err) }
-			if ioErr == io.EOF { break }
+			if err != nil {
+				log.Println("read write2buf:", err)
+			}
+			if ioErr == io.EOF {
+				break
+			}
 		} else {
 			log.Println("read in for:", err)
 			break
@@ -211,8 +218,6 @@ func Conn(protocol, addr, payload string, timeout int) ([]byte, error) {
 	log.Println(buf.String())
 	return buf.Bytes(), nil
 }
-
-
 
 //Conn 发起网络连接，并返回结果
 //func Conn(protocol, addr string, payload string, timeout int) ([]byte, error) {

@@ -3,7 +3,6 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	"ias_tool_v2/config"
 	"ias_tool_v2/core/scanner"
 	"ias_tool_v2/core/slog"
 	"ias_tool_v2/core/udp"
@@ -162,10 +161,12 @@ func outputNmapFinger(runTaskID string, URL *url.URL, resp *gonmap.Response) {
 func WatchDog(p *scanner.PortClient) {
 	time.Sleep(time.Second * 1)
 	for {
-		slog.Println(slog.WARN, "totla --", p.Total, "done ---", p.DoneCount())
+		slog.Println(slog.WARN, p.TaskId, "total--", p.Total, "done ---", p.DoneCount())
 		if p.Total-p.DoneCount() <= 1 {
 			//进行探针扫描
-			ToProbeScan(TakData[p.TaskId])
+			if len(TakData[p.TaskId].Payloads) != 0 {
+				ToProbeScan(TakData[p.TaskId])
+			}
 			delete(EngineArr, p.TaskId)
 			delete(TakData, p.TaskId)
 			break
@@ -182,7 +183,7 @@ func ToProbeScan(p *ProbeReqParam) {
 
 	slog.Println(slog.DEBUG, "开始进行探针扫描")
 
-	path := config.CoreConf.ResPath + p.TaskId + ".json"
+	path := p.TaskId + ".json"
 
 	res, _ := utils.ReadLineData(path)
 

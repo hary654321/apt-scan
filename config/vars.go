@@ -20,6 +20,9 @@ var (
 	ProbeWin   = filepath.Join(GlobalPath, "scn/r/probe/")
 	ProbeLinux = "/opt/scn/r/probe/"
 
+	PortWin   = filepath.Join(GlobalPath, "scn/r/port/")
+	PortLinux = "/opt/scn/r/port/"
+
 	WebMgrWin   = filepath.Join(GlobalPath, "scn/r/webMgr/")
 	WebMgrLinux = "/opt/scn/r/webMgr/"
 
@@ -27,7 +30,7 @@ var (
 	SrvIdentLinux = "/opt/scn/r/srvIdent/"
 
 	PicklePath      = "pickle"
-	ServiceTypeNums = []string{"webDir", "passwd_crack", "sslCert", "probe", "webMgr", "srvIdent"}
+	ServiceTypeNums = []string{"webDir", "passwd_crack", "sslCert", "probe", "port", "webMgr", "srvIdent"}
 )
 
 // GetPicklePaths 返回pickle路径

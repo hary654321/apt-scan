@@ -1,7 +1,6 @@
 package port
 
 import (
-	"ias_tool_v2/config"
 	"ias_tool_v2/core/scanner"
 	"ias_tool_v2/core/slog"
 	"ias_tool_v2/core/utils"
@@ -26,7 +25,7 @@ func Start(ctx *gin.Context) {
 		goto ERR
 	}
 
-	slog.Println(slog.DEBUG, params.ScanAddrs)
+	slog.Println(slog.DEBUG, params.Payloads)
 
 	if err = params.IsValid(); err != nil {
 		goto ERR
@@ -71,7 +70,7 @@ func Progress(ctx *gin.Context) {
 	taskid := params.TaskId
 	portScanner := model.GetPortClient(taskid)
 
-	if portScanner == nil && !utils.PathExists(config.CoreConf.ResPath+taskid+".json") {
+	if portScanner == nil && !utils.PathExists(taskid+".json") {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": 400,
 			"msg":  "错误的任务ID",
@@ -113,7 +112,7 @@ func Res(ctx *gin.Context) {
 	}
 	taskid := params.TaskId
 
-	path := config.CoreConf.ResPath + taskid + ".json"
+	path := taskid + ".json"
 	if !utils.PathExists(path) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": 400,

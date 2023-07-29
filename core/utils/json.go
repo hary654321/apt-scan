@@ -3,13 +3,12 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"ias_tool_v2/config"
 	"ias_tool_v2/core/slog"
 
 	"os"
 )
 
-func WriteJson(path string, data interface{}) {
+func WriteJson(file string, data interface{}) {
 
 	var buf bytes.Buffer
 
@@ -19,9 +18,8 @@ func WriteJson(path string, data interface{}) {
 	if err != nil {
 		slog.Println(slog.DEBUG, err)
 	}
-	path = config.CoreConf.ResPath + path
 
-	f, err := os.OpenFile(path, os.O_CREATE+os.O_RDWR+os.O_APPEND, 0764)
+	f, err := os.OpenFile(file, os.O_CREATE+os.O_RDWR+os.O_APPEND, 0764)
 	if err != nil {
 		slog.Println(slog.DEBUG, err)
 	}
@@ -31,16 +29,16 @@ func WriteJson(path string, data interface{}) {
 
 }
 
-func WriteJsonAny(path string, m map[string]interface{}) {
+func WriteJsonAny(file string, m map[string]interface{}) {
 	m["CreateDate"] = GetDate()
 	m["CreateTime"] = GetTime()
 
-	WriteJson(path, m)
+	WriteJson(file, m)
 }
 
-func WriteJsonString(path string, m map[string]string) {
+func WriteJsonString(file string, m map[string]string) {
 	m["CreateDate"] = GetDate()
 	m["CreateTime"] = GetTime()
 
-	WriteJson(path, m)
+	WriteJson(file, m)
 }
