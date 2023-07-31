@@ -75,7 +75,6 @@ func New(threads int) *Pool {
 	}
 }
 
-// 结束整个工作
 func (p *Pool) Push(i interface{}) {
 	if p.Done {
 		return
