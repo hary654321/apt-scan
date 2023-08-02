@@ -8,7 +8,7 @@ import (
 )
 
 func InitPortRouter(Router *gin.RouterGroup) {
-	p := Router.Group("port").Use(middlewares.CostTime())
+	p := Router.Group("port").Use(middlewares.CostTime()).Use(middlewares.BasicAuth())
 	{
 		p.POST("/start", port.Start)
 		p.POST("/progress", port.Progress)

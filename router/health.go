@@ -32,7 +32,7 @@ func GetDiskPercent() float64 {
 }
 
 func InitHealthRouter(Router *gin.RouterGroup) {
-	c := Router.Group("check").Use(middlewares.CostTime())
+	c := Router.Group("check").Use(middlewares.CostTime()).Use(middlewares.BasicAuth())
 	{
 		c.GET("/health", func(context *gin.Context) {
 			memPercent := int(GetMemPercent())
