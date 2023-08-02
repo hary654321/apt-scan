@@ -21,7 +21,7 @@ func main() {
 	Router = initialize.Routers()
 	if config.CoreConf.HttpsServer {
 		Router.Use(middlewares.TlsHandler())
-		if err = Router.RunTLS(fmt.Sprintf(":%d", config.CoreConf.ApiPort), ".pem/.cert.pem", ".pem/.key.pem"); err != nil {
+		if err = Router.RunTLS(fmt.Sprintf(":%d", config.CoreConf.ApiPort), "pem/.cert.pem", "pem/.key.pem"); err != nil {
 			goto ERR
 		}
 	} else {
