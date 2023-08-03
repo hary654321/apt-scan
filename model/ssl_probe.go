@@ -350,7 +350,7 @@ type SSLProbeResult struct {
 
 // Scan 探测实现
 func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
-	var resp []byte
+	var resp string
 	res = &PeerProbeResult{}
 
 	if isTls == IsTLS {
@@ -379,12 +379,15 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 		}
 		res.ResPlain = "tcp " + string(resp)
 	} else {
-		resp = []byte{}
-		res.ResPlain = string(resp)
+
+		res.ResPlain = resp
 	}
 
 	res.ReqInfo = req
-	res.ResHex = hex.Dump(resp)
+
+	dump, _ := hex.DecodeString(resp)
+
+	res.ResHex = hex.Dump(dump)
 	return
 }
 

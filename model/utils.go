@@ -168,7 +168,7 @@ func BuildErr(show bool, err error, msgs ...string) string {
 	return _err
 }
 
-func Conn(protocol, addr, payload string, timeout int) ([]byte, error) {
+func Conn(protocol, addr, payload string, timeout int) (string, error) {
 	var err error
 	var conn net.Conn
 
@@ -180,22 +180,35 @@ func Conn(protocol, addr, payload string, timeout int) ([]byte, error) {
 			&tls.Config{InsecureSkipVerify: true},
 		)
 	} else {
-		conn, err = net.DialTimeout("tcp", addr, time.Duration(5)*time.Second)
+		conn, err = net.DialTimeout("tcp", addr, time.Duration(timeout)*time.Second)
 	}
 	if err != nil {
 		log.Println("conn:", err)
-		return []byte{}, err
+		return "", err
 	}
 	defer conn.Close()
 	if len(payload) > 0 {
-		_ = conn.SetWriteDeadline(time.Now().Add(time.Duration(5) * time.Second))
-		_, err = conn.Write([]byte(payload))
+		_ = conn.SetWriteDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
+
+		pbyte, _ := hex.DecodeString(payload)
+
+		_, err = conn.Write(pbyte)
+
+		b := "a4000000f09330819f300d06092a864886f70d010101050003818d0030818902818100e42b643814d3b9006fc4fbd6f50c5ace6aaedd2e5ea940ee8d8d1143c9a014d08ad7820c836f7bc355ba96db20f8d4830d52ed8373325e2b398b432e7cac71c4da3613c91a93791c285699fb38f405110ceee5922f2d515fb2af979df6fa324407489d55974338c33f38721d113d5b7dae7843f3b7913c29717ddbbb217db4430203010001"
+
+		bb, _ := hex.DecodeString(b)
+
+		//这才是正确的
+		// slog.Println(slog.DEBUG, "dump", hex.Dump([]byte(bb)))
+
+		conn.Write(bb)
+
 		if err != nil {
 			log.Println("write:", err)
-			return []byte{}, err
+			return "", err
 		}
 	}
-	_ = conn.SetReadDeadline(time.Now().Add(time.Duration(5) * time.Second))
+	_ = conn.SetReadDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
 	cr := bufio.NewReader(conn)
 	var buf bytes.Buffer
 	for {
@@ -214,9 +227,11 @@ func Conn(protocol, addr, payload string, timeout int) ([]byte, error) {
 			break
 		}
 	}
-	log.Println(hex.EncodeToString(buf.Bytes()))
-	log.Println(buf.String())
-	return buf.Bytes(), nil
+	slog.Println(slog.DEBUG, "hex===", hex.EncodeToString(buf.Bytes()))
+
+	slog.Println(slog.DEBUG, "dump", hex.Dump(buf.Bytes()))
+
+	return hex.EncodeToString(buf.Bytes()), nil
 }
 
 //Conn 发起网络连接，并返回结果
