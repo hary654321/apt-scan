@@ -377,7 +377,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 			err = errors.New("no result")
 			//return res, err
 		}
-		res.ResPlain = "tcp " + string(resp)
+		res.ResPlain = string(resp)
 	} else {
 
 		res.ResPlain = resp
