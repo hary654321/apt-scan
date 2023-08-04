@@ -188,14 +188,20 @@ func ToProbeScan(p *ProbeReqParam) {
 
 	res, _ := utils.ReadLineData(path)
 
-	var portInfo define.Portres
 	var addrArr []string
 	for _, v := range res {
+		var portInfo define.Portres
 		if err := json.Unmarshal([]byte(v), &portInfo); err != nil {
 			slog.Println(slog.DEBUG, "json读取失败==", err)
 			return
 		}
 		if portInfo.Service == "http" {
+			slog.Println(slog.DEBUG, portInfo.IP+":"+portInfo.Port)
+			addrArr = append(addrArr, portInfo.IP+":"+portInfo.Port)
+		}
+
+		slog.Println(slog.DEBUG, portInfo.IP+":"+portInfo.Port, "==", portInfo.Service)
+		if portInfo.Service == "" {
 			slog.Println(slog.DEBUG, portInfo.IP+":"+portInfo.Port)
 			addrArr = append(addrArr, portInfo.IP+":"+portInfo.Port)
 		}

@@ -17,6 +17,7 @@ import (
 	"reflect"
 	"regexp"
 	"runtime"
+	"strings"
 	"time"
 	"unsafe"
 )
@@ -187,22 +188,23 @@ func Conn(protocol, addr, payload string, timeout int) (string, error) {
 		return "", err
 	}
 	defer conn.Close()
+
+	slog.Println(slog.DEBUG, "Conn", "payload", payload)
 	if len(payload) > 0 {
 		_ = conn.SetWriteDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
 
-		pbyte, _ := hex.DecodeString(payload)
+		if strings.Contains(payload, "-") {
+			parr := strings.Split(payload, "-")
+			for _, p := range parr {
 
-		_, err = conn.Write(pbyte)
+				pbyte, _ := hex.DecodeString(p)
+				_, err = conn.Write(pbyte)
+			}
+		} else {
+			pbyte, _ := hex.DecodeString(payload)
 
-		b := "a4000000f09330819f300d06092a864886f70d010101050003818d0030818902818100e42b643814d3b9006fc4fbd6f50c5ace6aaedd2e5ea940ee8d8d1143c9a014d08ad7820c836f7bc355ba96db20f8d4830d52ed8373325e2b398b432e7cac71c4da3613c91a93791c285699fb38f405110ceee5922f2d515fb2af979df6fa324407489d55974338c33f38721d113d5b7dae7843f3b7913c29717ddbbb217db4430203010001"
-
-		bb, _ := hex.DecodeString(b)
-
-		//这才是正确的
-		// slog.Println(slog.DEBUG, "dump", hex.Dump([]byte(bb)))
-
-		conn.Write(bb)
-
+			_, err = conn.Write(pbyte)
+		}
 		if err != nil {
 			log.Println("write:", err)
 			return "", err

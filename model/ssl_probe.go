@@ -58,7 +58,7 @@ func (request *ProbeReqParam) IsValid() (err error) {
 
 	validate := validator.New()
 	if err = validate.Struct(request); err != nil {
-		fmt.Println("字段校验出错", err.Error())
+		slog.Println(slog.DEBUG, "字段校验出错", err.Error())
 		return err
 	}
 	return nil
@@ -148,8 +148,8 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 	}
 	//反正不管怎么样都要执行TCP探测
 	tcpResult, err := Scan(params, IsNotTLS)
-	fmt.Println("tcpResult:", tcpResult)
-	fmt.Println("err:", err)
+	slog.Println(slog.DEBUG, "tcpResult:", tcpResult)
+	slog.Println(slog.DEBUG, "err:", err)
 	res.SslResult = &TlsResult{Cert: certData}
 	if err == nil {
 		res.ProbeResult = tcpResult
@@ -166,8 +166,8 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 	//TLS探测
 	if isTls == IsTLS {
 		tlsResult, err := Scan(params, IsTLS)
-		fmt.Println("tcpResult:", tlsResult)
-		fmt.Println("err:", err)
+		slog.Println(slog.DEBUG, "tcpResult:", tlsResult)
+		slog.Println(slog.DEBUG, "err:", err)
 		res.SslResult = &TlsResult{Cert: certData}
 		if err == nil {
 			res.ProbeResult = tlsResult
