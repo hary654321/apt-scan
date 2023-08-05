@@ -28,6 +28,7 @@ type Probe struct {
 	ProbeName     string  `json:"probe_name" validate:"required"`
 	ProbeProtocol string  `json:"probe_protocol" validate:"required"`
 	Payload       *string `json:"payload" validate:"required"`
+	MT            string  `json:"probe_match_type"`
 }
 
 // GetID get task id in post
@@ -50,6 +51,7 @@ type ReqParams struct {
 	Timeout   int    `json:"-"`    //请求超时时间
 	Payload   string `json:"-"`    //原请求的payload信息
 	ProbeName string `json:"probe_name"`
+	MT        string `json:"probe_match_type"`
 }
 
 // IsValid 校验参数
@@ -124,32 +126,34 @@ func NewProbeTask(p *ProbeReqParam) *ProbeTask {
 //}
 
 func (task *ProbeTask) ScanSchedule(params ReqParams) {
-	var res = &SSLProbeResult{}
-	var isTls int
-	var certData CertData
 
-	//TLS判断
-	tlsFlagHalf, certDataHalf := CheckIsTlsAndParseCert(params.Addr)
-	if tlsFlagHalf == IsTLS {
-		isTls = IsTLS
-		if len(certDataHalf.Thumbprint) > 0 {
-			certData = certDataHalf
-		}
-	}
-	if len(certDataHalf.Thumbprint) == 0 {
-		tlsFlagFull, certDataFull := CheckIsTlsFullAndParseCert(params.Addr)
-		if tlsFlagFull == IsTLS {
-			isTls = IsTLS
-			if len(certDataFull.Thumbprint) > 0 {
-				certData = certDataFull
-			}
-		}
-	}
+	slog.Println(slog.DEBUG, "MT=====", params.MT)
+	var res = &SSLProbeResult{}
+	// var isTls int
+	// var certData CertData
+
+	// //TLS判断
+	// tlsFlagHalf, certDataHalf := CheckIsTlsAndParseCert(params.Addr)
+	// if tlsFlagHalf == IsTLS {
+	// 	isTls = IsTLS
+	// 	if len(certDataHalf.Thumbprint) > 0 {
+	// 		certData = certDataHalf
+	// 	}
+	// }
+	// if len(certDataHalf.Thumbprint) == 0 {
+	// 	tlsFlagFull, certDataFull := CheckIsTlsFullAndParseCert(params.Addr)
+	// 	if tlsFlagFull == IsTLS {
+	// 		isTls = IsTLS
+	// 		if len(certDataFull.Thumbprint) > 0 {
+	// 			certData = certDataFull
+	// 		}
+	// 	}
+	// }
 	//反正不管怎么样都要执行TCP探测
 	tcpResult, err := Scan(params, IsNotTLS)
 	// slog.Println(slog.DEBUG, "tcpResult:", tcpResult)
 	slog.Println(slog.DEBUG, "err:", err)
-	res.SslResult = &TlsResult{Cert: certData}
+	// res.SslResult = &TlsResult{Cert: certData}
 	if err == nil {
 		res.ProbeResult = tcpResult
 	} else {
@@ -162,25 +166,25 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 	if res.ProbeResult.ResPlain != "" {
 		task.chResult <- res
 	}
-	//TLS探测
-	if isTls == IsTLS {
-		tlsResult, err := Scan(params, IsTLS)
-		slog.Println(slog.DEBUG, "tcpResult:", tlsResult)
-		slog.Println(slog.DEBUG, "err:", err)
-		res.SslResult = &TlsResult{Cert: certData}
-		if err == nil {
-			res.ProbeResult = tlsResult
-		} else {
-			res.ProbeResult = &PeerProbeResult{
-				ReqInfo:  params,
-				ResPlain: "",
-				ResHex:   "",
-			}
-		}
-	}
-	if res.SslResult.Cert.Subject != "" {
-		task.chResult <- res
-	}
+	//TLS探测  暂时不要
+	// if isTls == IsTLS {
+	// 	tlsResult, err := Scan(params, IsTLS)
+	// 	slog.Println(slog.DEBUG, "tcpResult:", tlsResult)
+	// 	slog.Println(slog.DEBUG, "err:", err)
+	// 	res.SslResult = &TlsResult{Cert: certData}
+	// 	if err == nil {
+	// 		res.ProbeResult = tlsResult
+	// 	} else {
+	// 		res.ProbeResult = &PeerProbeResult{
+	// 			ReqInfo:  params,
+	// 			ResPlain: "",
+	// 			ResHex:   "",
+	// 		}
+	// 	}
+	// }
+	// if res.SslResult.Cert.Subject != "" {
+	// 	task.chResult <- res
+	// }
 	return
 }
 
@@ -287,6 +291,7 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 					Timeout:   p.Timeout,
 					Payload:   PayloadPreHandle(strPayload, addr),
 					ProbeName: payload.ProbeName,
+					MT:        payload.MT,
 				}
 				task.ChReq <- ReqHttpParam
 				task.ChMaxThread <- struct{}{}
