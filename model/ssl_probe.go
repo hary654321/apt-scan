@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"ias_tool_v2/core/slog"
 	"ias_tool_v2/logger"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -148,7 +147,7 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 	}
 	//反正不管怎么样都要执行TCP探测
 	tcpResult, err := Scan(params, IsNotTLS)
-	slog.Println(slog.DEBUG, "tcpResult:", tcpResult)
+	// slog.Println(slog.DEBUG, "tcpResult:", tcpResult)
 	slog.Println(slog.DEBUG, "err:", err)
 	res.SslResult = &TlsResult{Cert: certData}
 	if err == nil {
@@ -276,11 +275,11 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 				decodePayload, err := base64.StdEncoding.DecodeString(*payload.Payload)
 				strPayload := string(decodePayload)
 
-				slog.Println(slog.DEBUG, "payload:", strPayload)
+				// slog.Println(slog.DEBUG, "payload:", strPayload)
 
-				slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
+				// slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
 				if err != nil {
-					logger.Errorf(err.Error())
+					slog.Println(slog.DEBUG, err.Error())
 					continue
 				}
 				ReqHttpParam := ReqParams{
@@ -354,7 +353,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 	res = &PeerProbeResult{}
 
 	if isTls == IsTLS {
-		resp, err = Conn("tls", req.Addr, req.Payload, req.Timeout)
+		resp, err = HttpSend("tls", req.Addr, req.Payload, req.Timeout)
 		// slog.Println(slog.DEBUG, "Scan:", resp, err)
 		if err != nil {
 			return res, err
@@ -363,31 +362,42 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 			err = errors.New("no result")
 			//return res, err
 		}
-		res.ResPlain = "tls " + string(resp)
+		res.ResPlain = resp
 
-	} else if isTls == IsNotTLS {
-
-		slog.Println(slog.DEBUG, "tcp", req.Addr, "====", req.Payload)
-		resp, err = Conn("tcp", req.Addr, req.Payload, req.Timeout)
-		log.Println("Scan:", resp, err)
+	} else if strings.Contains(req.Payload, "HTTP") {
+		resp, err = HttpSend("tcp", req.Addr, req.Payload, req.Timeout)
 		if err != nil {
+			slog.Println(slog.DEBUG, "http", req.Addr, "====", req.Payload, err)
 			return res, err
 		}
 		if len(resp) == 0 {
 			err = errors.New("no result")
 			//return res, err
 		}
-		res.ResPlain = string(resp)
+		res.ResPlain = resp
+
+		res.ResHex = hex.Dump([]byte(resp))
 	} else {
 
+		resp, err = TcpSend("tcp", req.Addr, req.Payload, req.Timeout)
+
+		if err != nil {
+			slog.Println(slog.DEBUG, "tcp:", resp, err)
+			return res, err
+		}
+		if len(resp) == 0 {
+			err = errors.New("no result")
+			//return res, err
+		}
 		res.ResPlain = resp
+
+		dump, _ := hex.DecodeString(resp)
+
+		res.ResHex = hex.Dump(dump)
 	}
 
 	res.ReqInfo = req
 
-	dump, _ := hex.DecodeString(resp)
-
-	res.ResHex = hex.Dump(dump)
 	return
 }
 

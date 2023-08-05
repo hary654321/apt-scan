@@ -169,27 +169,18 @@ func BuildErr(show bool, err error, msgs ...string) string {
 	return _err
 }
 
-func Conn(protocol, addr, payload string, timeout int) (string, error) {
+func TcpSend(protocol, addr, payload string, timeout int) (string, error) {
 	var err error
 	var conn net.Conn
 
-	if protocol == "tls" {
-		conn, err = tls.DialWithDialer(
-			&net.Dialer{Timeout: time.Duration(5) * time.Second},
-			"tcp",
-			addr,
-			&tls.Config{InsecureSkipVerify: true},
-		)
-	} else {
-		conn, err = net.DialTimeout("tcp", addr, time.Duration(timeout)*time.Second)
-	}
+	conn, err = net.DialTimeout("tcp", addr, time.Duration(timeout)*time.Second)
+
 	if err != nil {
-		log.Println("conn:", err)
+		slog.Println(slog.DEBUG, "conn:", err)
 		return "", err
 	}
 	defer conn.Close()
 
-	slog.Println(slog.DEBUG, "Conn", "payload", payload)
 	if len(payload) > 0 {
 		_ = conn.SetWriteDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
 
@@ -219,6 +210,57 @@ func Conn(protocol, addr, payload string, timeout int) (string, error) {
 			ioErr := err
 			_, err = buf.Write(tmp)
 			if err != nil {
+				slog.Println(slog.DEBUG, "read write2buf:", err)
+			}
+			if ioErr == io.EOF {
+				break
+			}
+		} else {
+			slog.Println(slog.DEBUG, "read in for:", err)
+			break
+		}
+	}
+	slog.Println(slog.DEBUG, "dump", hex.Dump(buf.Bytes()))
+
+	return hex.EncodeToString(buf.Bytes()), nil
+}
+
+func HttpSend(protocol, addr, payload string, timeout int) (string, error) {
+	var err error
+	var conn net.Conn
+
+	if protocol == "tls" {
+		conn, err = tls.DialWithDialer(
+			&net.Dialer{Timeout: time.Duration(5) * time.Second},
+			"tcp",
+			addr,
+			&tls.Config{InsecureSkipVerify: true},
+		)
+	} else {
+		conn, err = net.DialTimeout("tcp", addr, time.Duration(5)*time.Second)
+	}
+	if err != nil {
+		log.Println("conn:", err)
+		return "", err
+	}
+	defer conn.Close()
+	if len(payload) > 0 {
+		_ = conn.SetWriteDeadline(time.Now().Add(time.Duration(5) * time.Second))
+		_, err = conn.Write([]byte(payload))
+		if err != nil {
+			log.Println("write:", err)
+			return "", err
+		}
+	}
+	_ = conn.SetReadDeadline(time.Now().Add(time.Duration(5) * time.Second))
+	cr := bufio.NewReader(conn)
+	var buf bytes.Buffer
+	for {
+		tmp, err := cr.ReadBytes('\n')
+		if err == nil || err == io.EOF {
+			ioErr := err
+			_, err = buf.Write(tmp)
+			if err != nil {
 				log.Println("read write2buf:", err)
 			}
 			if ioErr == io.EOF {
@@ -229,88 +271,9 @@ func Conn(protocol, addr, payload string, timeout int) (string, error) {
 			break
 		}
 	}
-	slog.Println(slog.DEBUG, "hex===", hex.EncodeToString(buf.Bytes()))
-
-	slog.Println(slog.DEBUG, "dump", hex.Dump(buf.Bytes()))
-
-	return hex.EncodeToString(buf.Bytes()), nil
+	log.Println(buf.String())
+	return buf.String(), nil
 }
-
-//Conn 发起网络连接，并返回结果
-//func Conn(protocol, addr string, payload string, timeout int) ([]byte, error) {
-//	timeoutConfig := time.Duration(timeout) * time.Second
-//	var cr *bufio.Reader
-//	var buf bytes.Buffer
-//
-//	switch protocol {
-//	case "tls":
-//		dialer := net.Dialer{Timeout: timeoutConfig}
-//		conn, err := tls.DialWithDialer(&dialer, "tcp", addr, &tls.Config{InsecureSkipVerify: true})
-//		if err != nil {
-//			log.Println("an exception occurred during network connection：", err.Error())
-//			return []byte{}, err
-//		}
-//		defer conn.Close()
-//
-//		if len(payload) != 0 {
-//			err = conn.SetWriteDeadline(time.Now().Add(timeoutConfig))
-//			if err != nil {
-//				log.Println("an exception occurred in the process of setting the timeout time：", err.Error())
-//				return []byte{}, err
-//			}
-//			_, err = conn.Write([]byte(payload))
-//			if err != nil {
-//				log.Println("an error occurred while writing probe", err.Error())
-//				return []byte{}, err
-//			}
-//		}
-//		_ = conn.SetReadDeadline(time.Now().Add(timeoutConfig))
-//		cr = bufio.NewReader(conn)
-//	case "tcp":
-//		conn, err := net.DialTimeout("tcp", addr, timeoutConfig)
-//		if err != nil {
-//			log.Println("an error occurred while connecte server", err.Error())
-//			return []byte{}, err
-//		}
-//		defer conn.Close()
-//
-//		if len(payload) != 0 {
-//			err = conn.SetWriteDeadline(time.Now().Add(timeoutConfig))
-//			if err != nil {
-//				log.Println("setReadDeadline failed:", err)
-//			}
-//			_, err = conn.Write([]byte(payload))
-//			if err != nil {
-//				log.Println("an error occurred while writing probe", err.Error())
-//				return []byte{}, err
-//			}
-//		}
-//		_ = conn.SetReadDeadline(time.Now().Add(timeoutConfig))
-//		cr = bufio.NewReader(conn)
-//	default:
-//		return []byte{}, errors.New("protocol错误")
-//	}
-//
-//	for {
-//		tmp, err := cr.ReadBytes('\n')
-//		log.Println("tmp in for:", tmp)
-//		if err == nil || err == io.EOF {
-//			ioErr := err
-//			_, err = buf.Write(tmp)
-//			if err != nil {
-//				log.Println("read:", err)
-//			}
-//			if ioErr == io.EOF {
-//				break
-//			}
-//		} else {
-//			log.Println("read:", err)
-//			break
-//		}
-//	}
-//	fmt.Println("###", buf.String())
-//	return buf.Bytes(), nil
-//}
 
 func CheckIsTls(addr string) int {
 	var err error
