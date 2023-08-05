@@ -2,7 +2,6 @@ package ssl_probe
 
 import (
 	"ias_tool_v2/api"
-	"ias_tool_v2/core/slog"
 	"ias_tool_v2/model"
 	"net/http"
 
@@ -29,7 +28,7 @@ func (p *ProbeHandler) Start(ctx *gin.Context) {
 	if err = ctx.BindJSON(params); err != nil {
 		goto ERR
 	}
-	slog.Println(slog.DEBUG, params)
+	// slog.Println(slog.DEBUG, params)
 	if err = params.IsValid(); err != nil {
 		goto ERR
 	}
