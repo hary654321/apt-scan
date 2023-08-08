@@ -10,6 +10,7 @@ import (
 	"ias_tool_v2/define"
 	"net"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
@@ -161,6 +162,9 @@ func outputNmapFinger(runTaskID string, URL *url.URL, resp *gonmap.Response) {
 func WatchDog(p *scanner.PortClient) {
 	time.Sleep(time.Second * 1)
 	for {
+		if p.Stoped == true {
+			break
+		}
 		slog.Println(slog.WARN, p.TaskId, "total--", p.Total, "done ---", p.DoneCount())
 		if p.Total-p.DoneCount() <= 1 {
 			//进行探针扫描
@@ -174,6 +178,14 @@ func WatchDog(p *scanner.PortClient) {
 		}
 		time.Sleep(time.Second * 1)
 	}
+}
+
+func StopEn(p *scanner.PortClient) {
+	p.Stop()
+	p.Stoped = true
+	delete(EngineArr, p.TaskId)
+	delete(TakData, p.TaskId)
+	os.Remove(p.TaskId + ".json")
 }
 
 func GetPortClient(taskId string) *scanner.PortClient {

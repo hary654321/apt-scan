@@ -84,10 +84,10 @@ func (p *Pool) Push(i interface{}) {
 
 // 结束整个工作
 func (p *Pool) Stop() {
+	p.Done = true
 	if p.Done != true {
 		close(p.in)
 	}
-	p.Done = true
 }
 
 // 执行工作池当中的任务

@@ -26,6 +26,7 @@ type PortClient struct {
 	TaskId            string
 	Total             int
 	Threads           int
+	Stoped            bool
 }
 
 func NewPortScanner(config *Config, taskId string) *PortClient {
@@ -77,6 +78,9 @@ func NewPortScanner(config *Config, taskId string) *PortClient {
 func (c *PortClient) Push(ip net.IP, num int) {
 	for {
 
+		if c.Stoped {
+			return
+		}
 		// slog.Println(slog.DEBUG, "push", c.RunningThreads(), c.Threads)
 		if c.RunningThreads() < c.Threads {
 			c.pool.Push(foo1{ip, num})

@@ -14,13 +14,14 @@ func Test_PayloadPreHandle(t *testing.T) {
 
 func Test_tcp(t *testing.T) {
 
-	resp, err := TcpSend("tcp", "192.168.56.132:6722", "0500000040000000a2-a4000000f09330819f300d06092a864886f70d010101050003818d0030818902818100e42b643814d3b9006fc4fbd6f50c5ace6aaedd2e5ea940ee8d8d1143c9a014d08ad7820c836f7bc355ba96db20f8d4830d52ed8373325e2b398b432e7cac71c4da3613c91a93791c285699fb38f405110ceee5922f2d515fb2af979df6fa324407489d55974338c33f38721d113d5b7dae7843f3b7913c29717ddbbb217db4430203010001", 10)
+	resp, err := TcpSend("tcp", "192.168.56.132:8024", "545354-07000000302e32362e3130", 5)
 	log.Println("Scan:", resp, err)
 
 }
 
 func TestReg(t *testing.T) {
-	str := "G1olang regular expressions example"
-	match, err := regexp.MatchString(`^Golang`, str)
+	str := `</head>
+	<body>404 not found,power by <a href=" //ehang.io/nps">nps</a>`
+	match, err := regexp.MatchString(`*404 not found,power by*nps`, str)
 	fmt.Println("Match: ", match, " Error: ", err)
 }

@@ -13,5 +13,6 @@ func InitPortRouter(Router *gin.RouterGroup) {
 		p.POST("/start", port.Start)
 		p.POST("/progress", port.Progress)
 		p.POST("/result", port.Res)
+		p.POST("/stop", port.Stop)
 	}
 }
