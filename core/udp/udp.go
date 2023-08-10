@@ -2,7 +2,6 @@ package udp
 
 import (
 	"context"
-	"embed"
 	"fmt"
 	"ias_tool_v2/core/slog"
 	"ias_tool_v2/core/utils"
@@ -77,7 +76,6 @@ func readRes(ctx context.Context, ip net.IP, port int, ch chan string) {
 }
 
 var cli *VScan
-var f embed.FS
 
 func init() {
 	cli = GoNmapInit()

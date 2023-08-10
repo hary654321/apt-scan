@@ -7,7 +7,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-playground/validator/v10 v10.4.1
-	github.com/hary654321/gonmap v0.0.0-20230117075752-514409cd7d07
 	github.com/lcvvvv/appfinger v0.1.1
 	github.com/lcvvvv/gonmap v1.3.4
 	github.com/lcvvvv/stdio v0.1.2
