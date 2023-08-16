@@ -43,6 +43,7 @@ func Start(ctx *gin.Context) {
 		go portScanner.Push(net.ParseIP(netloc), port)
 	}
 
+	utils.Write(portScanner.TaskId+".json", "")
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"msg":  "success",
