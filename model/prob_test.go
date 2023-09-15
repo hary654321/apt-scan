@@ -14,7 +14,7 @@ func Test_PayloadPreHandle(t *testing.T) {
 
 func Test_tcp(t *testing.T) {
 
-	resp, err := TcpSend("tcp", "192.168.56.132:8024", "545354-07000000302e32362e3130", 5)
+	resp, err := TcpSend("tcp", "127.0.0.1:445", "hi", 5)
 	log.Println("Scan:", resp, err)
 
 }

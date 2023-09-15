@@ -207,7 +207,7 @@ func ToProbeScan(p *ProbeReqParam) {
 			slog.Println(slog.DEBUG, "json读取失败==", err)
 			return
 		}
-		if portInfo.Service == "http" {
+		if portInfo.Service == "http" || portInfo.Service == "https" {
 			slog.Println(slog.DEBUG, portInfo.IP+":"+portInfo.Port)
 			addrArr = append(addrArr, portInfo.IP+":"+portInfo.Port)
 		}
