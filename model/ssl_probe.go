@@ -129,31 +129,31 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 
 	slog.Println(slog.DEBUG, "MT=====", params.MT)
 	var res = &SSLProbeResult{}
-	// var isTls int
-	// var certData CertData
+	var isTls int
+	var certData CertData
 
-	// //TLS判断
-	// tlsFlagHalf, certDataHalf := CheckIsTlsAndParseCert(params.Addr)
-	// if tlsFlagHalf == IsTLS {
-	// 	isTls = IsTLS
-	// 	if len(certDataHalf.Thumbprint) > 0 {
-	// 		certData = certDataHalf
-	// 	}
-	// }
-	// if len(certDataHalf.Thumbprint) == 0 {
-	// 	tlsFlagFull, certDataFull := CheckIsTlsFullAndParseCert(params.Addr)
-	// 	if tlsFlagFull == IsTLS {
-	// 		isTls = IsTLS
-	// 		if len(certDataFull.Thumbprint) > 0 {
-	// 			certData = certDataFull
-	// 		}
-	// 	}
-	// }
+	//TLS判断
+	tlsFlagHalf, certDataHalf := CheckIsTlsAndParseCert(params.Addr)
+	if tlsFlagHalf == IsTLS {
+		isTls = IsTLS
+		if len(certDataHalf.Thumbprint) > 0 {
+			certData = certDataHalf
+		}
+	}
+	if len(certDataHalf.Thumbprint) == 0 {
+		tlsFlagFull, certDataFull := CheckIsTlsFullAndParseCert(params.Addr)
+		if tlsFlagFull == IsTLS {
+			isTls = IsTLS
+			if len(certDataFull.Thumbprint) > 0 {
+				certData = certDataFull
+			}
+		}
+	}
 	//反正不管怎么样都要执行TCP探测
-	tcpResult, err := Scan(params, IsNotTLS)
-	// slog.Println(slog.DEBUG, "tcpResult:", tcpResult)
+	tcpResult, err := Scan(params, isTls)
+	slog.Println(slog.DEBUG, "tcpResult:", tcpResult)
 	slog.Println(slog.DEBUG, "err:", err)
-	// res.SslResult = &TlsResult{Cert: certData}
+	res.SslResult = &TlsResult{Cert: certData}
 	if err == nil {
 		res.ProbeResult = tcpResult
 	} else {
