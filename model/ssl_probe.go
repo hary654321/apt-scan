@@ -151,8 +151,8 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 	}
 	//反正不管怎么样都要执行TCP探测
 	tcpResult, err := Scan(params, isTls)
-	slog.Println(slog.DEBUG, "tcpResult:", tcpResult)
-	slog.Println(slog.DEBUG, "err:", err)
+	// slog.Println(slog.DEBUG, "tcpResult:", tcpResult)
+	// slog.Println(slog.DEBUG, "certData:", certData)
 	res.SslResult = &TlsResult{Cert: certData}
 	if err == nil {
 		res.ProbeResult = tcpResult
@@ -166,25 +166,7 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 	if res.ProbeResult.ResPlain != "" {
 		task.chResult <- res
 	}
-	//TLS探测  暂时不要
-	// if isTls == IsTLS {
-	// 	tlsResult, err := Scan(params, IsTLS)
-	// 	slog.Println(slog.DEBUG, "tcpResult:", tlsResult)
-	// 	slog.Println(slog.DEBUG, "err:", err)
-	// 	res.SslResult = &TlsResult{Cert: certData}
-	// 	if err == nil {
-	// 		res.ProbeResult = tlsResult
-	// 	} else {
-	// 		res.ProbeResult = &PeerProbeResult{
-	// 			ReqInfo:  params,
-	// 			ResPlain: "",
-	// 			ResHex:   "",
-	// 		}
-	// 	}
-	// }
-	// if res.SslResult.Cert.Subject != "" {
-	// 	task.chResult <- res
-	// }
+
 	return
 }
 
@@ -359,8 +341,9 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 
 	if isTls == IsTLS {
 		resp, err = HttpSend("tls", req.Addr, req.Payload, req.Timeout)
-		// slog.Println(slog.DEBUG, "Scan:", resp, err)
+
 		if err != nil {
+			slog.Println(slog.DEBUG, "Scan:", resp, err)
 			return res, err
 		}
 		if len(resp) == 0 {
@@ -368,6 +351,8 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 			//return res, err
 		}
 		res.ResPlain = resp
+
+		res.ResHex = hex.Dump([]byte(resp))
 
 	} else if strings.Contains(req.Payload, "HTTP") {
 		resp, err = HttpSend("tcp", req.Addr, req.Payload, req.Timeout)
