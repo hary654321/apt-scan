@@ -10,7 +10,6 @@ import (
 	"ias_tool_v2/config"
 	"ias_tool_v2/core/slog"
 	"io"
-	"log"
 	"math"
 	"net"
 	"os"
@@ -123,11 +122,11 @@ func Byte2GzipBase64Encoding(buf []byte) (base64Encoded string, err error) {
 	var buffer bytes.Buffer
 	zipBuf := gzip.NewWriter(&buffer)
 	if _, err = zipBuf.Write(buf); err != nil {
-		log.Println("ERROR", "zip error", err.Error())
+		slog.Println(slog.DEBUG, "ERROR", "zip error", err.Error())
 		return "", err
 	}
 	if err = zipBuf.Close(); err != nil {
-		log.Println("ERROR", "zip error", err.Error())
+		slog.Println(slog.DEBUG, "ERROR", "zip error", err.Error())
 		return "", err
 	}
 	base64Encoded = base64.StdEncoding.EncodeToString(buffer.Bytes())
@@ -140,11 +139,11 @@ func String2GzipBase64Encoding(str string) (base64Encoded string, err error) {
 	midByte := String2Bytes(str)
 	zipBuf := gzip.NewWriter(&buffer)
 	if _, err = zipBuf.Write(midByte); err != nil {
-		log.Println("ERROR", "zip error", err.Error())
+		slog.Println(slog.DEBUG, "ERROR", "zip error", err.Error())
 		return "", err
 	}
 	if err = zipBuf.Close(); err != nil {
-		log.Println("ERROR", "zip error", err.Error())
+		slog.Println(slog.DEBUG, "ERROR", "zip error", err.Error())
 		return "", err
 	}
 	base64Encoded = base64.StdEncoding.EncodeToString(buffer.Bytes())
@@ -164,7 +163,7 @@ func BuildErr(show bool, err error, msgs ...string) string {
 	}
 	_err += err.Error()
 	if show {
-		log.Println("ERROR", _err)
+		slog.Println(slog.DEBUG, "ERROR", _err)
 	}
 	return _err
 }
@@ -197,7 +196,7 @@ func TcpSend(protocol, addr, payload string, timeout int) (string, error) {
 			_, err = conn.Write(pbyte)
 		}
 		if err != nil {
-			log.Println("write:", err)
+			slog.Println(slog.DEBUG, "write:", err)
 			return "", err
 		}
 	}
@@ -240,7 +239,7 @@ func HttpSend(protocol, addr, payload string, timeout int) (string, error) {
 		conn, err = net.DialTimeout("tcp", addr, time.Duration(5)*time.Second)
 	}
 	if err != nil {
-		log.Println("conn:", err)
+		slog.Println(slog.DEBUG, "conn:", err)
 		return "", err
 	}
 	defer conn.Close()
@@ -248,7 +247,7 @@ func HttpSend(protocol, addr, payload string, timeout int) (string, error) {
 		_ = conn.SetWriteDeadline(time.Now().Add(time.Duration(5) * time.Second))
 		_, err = conn.Write([]byte(payload))
 		if err != nil {
-			log.Println("write:", err)
+			slog.Println(slog.DEBUG, "write:", err)
 			return "", err
 		}
 	}
@@ -261,17 +260,17 @@ func HttpSend(protocol, addr, payload string, timeout int) (string, error) {
 			ioErr := err
 			_, err = buf.Write(tmp)
 			if err != nil {
-				log.Println("read write2buf:", err)
+				slog.Println(slog.DEBUG, "read write2buf:", err)
 			}
 			if ioErr == io.EOF {
 				break
 			}
 		} else {
-			log.Println("read in for:", err)
+			slog.Println(slog.DEBUG, "read in for:", err)
 			break
 		}
 	}
-	log.Println(buf.String())
+	slog.Println(slog.DEBUG, buf.String())
 	return buf.String(), nil
 }
 

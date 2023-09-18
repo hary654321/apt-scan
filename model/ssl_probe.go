@@ -343,7 +343,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 		resp, err = HttpSend("tls", req.Addr, req.Payload, req.Timeout)
 
 		if err != nil {
-			slog.Println(slog.DEBUG, "Scan:", resp, err)
+			slog.Println(slog.DEBUG, "resp:", resp, "err:", err)
 			return res, err
 		}
 		if len(resp) == 0 {
