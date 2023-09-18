@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/lcvvvv/appfinger"
@@ -207,7 +208,7 @@ func ToProbeScan(p *ProbeReqParam) {
 			slog.Println(slog.DEBUG, "json读取失败==", err)
 			return
 		}
-		if portInfo.Service == "http" || portInfo.Service == "https" {
+		if portInfo.Service == "http" || portInfo.Service == "https" || strings.Contains(portInfo.Service, "ssl") {
 			slog.Println(slog.DEBUG, portInfo.IP+":"+portInfo.Port)
 			addrArr = append(addrArr, portInfo.IP+":"+portInfo.Port)
 		}
