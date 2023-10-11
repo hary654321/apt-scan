@@ -357,7 +357,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 	} else if strings.Contains(req.Payload, "HTTP") {
 		resp, err = HttpSend("tcp", req.Addr, req.Payload, req.Timeout)
 		if err != nil {
-			slog.Println(slog.DEBUG, "http", req.Addr, "====", req.Payload, err)
+			// slog.Println(slog.DEBUG, "http", req.Addr, "====", req.Payload, err)
 			return res, err
 		}
 		if len(resp) == 0 {
