@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/gob"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"ias_tool_v2/core/slog"
@@ -352,7 +351,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 		}
 		res.ResPlain = resp
 
-		res.ResHex = hex.Dump([]byte(resp))
+		res.ResHex = "" // hex.Dump([]byte(resp))
 
 	} else if strings.Contains(req.Payload, "HTTP") {
 		resp, err = HttpSend("tcp", req.Addr, req.Payload, req.Timeout)
@@ -366,7 +365,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 		}
 		res.ResPlain = resp
 
-		res.ResHex = hex.Dump([]byte(resp))
+		res.ResHex = "" // hex.Dump([]byte(resp))
 	} else {
 
 		resp, err = TcpSend("tcp", req.Addr, req.Payload, req.Timeout)
@@ -381,9 +380,9 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 		}
 		res.ResPlain = resp
 
-		dump, _ := hex.DecodeString(resp)
+		// dump, _ := hex.DecodeString(resp)
 
-		res.ResHex = hex.Dump(dump)
+		res.ResHex = "" // hex.Dump(dump)
 	}
 
 	res.ReqInfo = req
