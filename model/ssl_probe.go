@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"ias_tool_v2/core/slog"
+	"ias_tool_v2/core/utils"
 	"ias_tool_v2/logger"
 	"os"
 	"path/filepath"
@@ -28,6 +29,7 @@ type Probe struct {
 	ProbeProtocol string  `json:"probe_protocol" validate:"required"`
 	Payload       *string `json:"payload" validate:"required"`
 	MT            string  `json:"probe_match_type"`
+	Port          string  ` json:"port" `
 }
 
 // GetID get task id in post
@@ -257,25 +259,31 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 		default:
 			//生产解析生成的结构体对象
 			for _, payload := range task.Payloads {
-				decodePayload, err := base64.StdEncoding.DecodeString(*payload.Payload)
-				strPayload := string(decodePayload)
 
-				// slog.Println(slog.DEBUG, "payload:", strPayload)
+				portStr := payload.Port
+				portArr := utils.GetPortArr(portStr)
+				for _, port := range portArr {
+					decodePayload, err := base64.StdEncoding.DecodeString(*payload.Payload)
+					strPayload := string(decodePayload)
 
-				// slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
-				if err != nil {
-					slog.Println(slog.DEBUG, err.Error())
-					continue
+					// slog.Println(slog.DEBUG, "payload:", strPayload)
+
+					// slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
+					if err != nil {
+						slog.Println(slog.DEBUG, err.Error())
+						continue
+					}
+					ReqHttpParam := ReqParams{
+						Addr:      addr + ":" + port,
+						Timeout:   p.Timeout,
+						Payload:   PayloadPreHandle(strPayload, addr),
+						ProbeName: payload.ProbeName,
+						MT:        payload.MT,
+					}
+					task.ChReq <- ReqHttpParam
+					task.ChMaxThread <- struct{}{}
 				}
-				ReqHttpParam := ReqParams{
-					Addr:      addr,
-					Timeout:   p.Timeout,
-					Payload:   PayloadPreHandle(strPayload, addr),
-					ProbeName: payload.ProbeName,
-					MT:        payload.MT,
-				}
-				task.ChReq <- ReqHttpParam
-				task.ChMaxThread <- struct{}{}
+
 			}
 		}
 	}

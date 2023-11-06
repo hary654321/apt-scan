@@ -36,11 +36,12 @@ func Start(ctx *gin.Context) {
 	go portScanner.Start()
 	go model.WatchDog(portScanner)
 
-	portScanner.Total = len(params.ScanAddrs)
+	portScanner.Total = len(params.ScanAddrs) * len(utils.TOP_1000)
 	for _, addr := range params.ScanAddrs {
-		netloc, port := utils.SplitWithNetlocPort(addr)
-		// slog.Println(slog.DEBUG, "ip"+netloc, "port", port)
-		go portScanner.Push(net.ParseIP(netloc), port)
+		for _, port := range utils.TOP_1000 {
+			go portScanner.Push(net.ParseIP(addr), port)
+		}
+
 	}
 
 	utils.Write(portScanner.TaskId+".json", "")
