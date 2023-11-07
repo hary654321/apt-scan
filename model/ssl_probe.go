@@ -266,13 +266,14 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 					decodePayload, err := base64.StdEncoding.DecodeString(*payload.Payload)
 					strPayload := string(decodePayload)
 
-					// slog.Println(slog.DEBUG, "payload:", strPayload)
+					slog.Println(slog.DEBUG, "payload:", strPayload)
 
-					// slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
+					slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
 					if err != nil {
 						slog.Println(slog.DEBUG, err.Error())
 						continue
 					}
+					slog.Println(slog.DEBUG, "payload:", addr+":"+port)
 					ReqHttpParam := ReqParams{
 						Addr:      addr + ":" + port,
 						Timeout:   p.Timeout,
@@ -285,6 +286,7 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 				}
 
 			}
+			task.AddProgress()
 		}
 	}
 	return
@@ -310,7 +312,7 @@ func (task *ProbeTask) Custom(ctx context.Context) {
 			go func() {
 				task.ScanSchedule(reqParams)
 				<-task.ChMaxThread
-				task.chProgress <- struct{}{}
+				// task.AddProgress()
 			}()
 		}
 	}

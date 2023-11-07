@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"ias_tool_v2/config"
+	"ias_tool_v2/core/slog"
 	"ias_tool_v2/logger"
 	"io"
 	"log"
@@ -128,6 +129,7 @@ func (t *Task) WriteProgress(content []byte) (err error) {
 		fd *os.File
 	)
 
+	slog.Println(slog.DEBUG, "写的个啥", string(content))
 	fd, err = os.OpenFile(t.ProgressFilePath, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		goto ERR
