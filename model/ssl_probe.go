@@ -77,8 +77,17 @@ func NewProbeTask(p *ProbeReqParam) *ProbeTask {
 		ChReq:       make(chan ReqParams, p.Threads),
 		ChMaxThread: make(chan struct{}, p.Threads),
 	}
-	probeTask.AllSampleNum = len(p.Payloads) * len(p.ScanAddrs)
+	probeTask.AllSampleNum = getTotal(p.Payloads) * len(p.ScanAddrs)
 	return probeTask
+}
+
+func getTotal(Payloads []Probe) (total int) {
+
+	for _, v := range Payloads {
+		total += len(utils.GetPortArr(v.Port))
+	}
+
+	return
 }
 
 //func tlsRetryTcp(params ReqParams) (*PeerProbeResult, error) {
@@ -286,7 +295,6 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 				}
 
 			}
-			task.AddProgress()
 		}
 	}
 	return
@@ -312,7 +320,7 @@ func (task *ProbeTask) Custom(ctx context.Context) {
 			go func() {
 				task.ScanSchedule(reqParams)
 				<-task.ChMaxThread
-				// task.AddProgress()
+				task.AddProgress()
 			}()
 		}
 	}
