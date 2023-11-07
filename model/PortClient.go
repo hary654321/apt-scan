@@ -166,7 +166,7 @@ func WatchDog(p *scanner.PortClient) {
 		if p.Stoped == true {
 			break
 		}
-		slog.Println(slog.WARN, p.TaskId, "total--", p.Total, "done ---", p.DoneCount())
+		// slog.Println(slog.WARN, p.TaskId, "total--", p.Total, "done ---", p.DoneCount())
 		if p.Total-p.DoneCount() <= 1 {
 			//进行探针扫描
 			// if len(TakData[p.TaskId].Payloads) != 0 {
