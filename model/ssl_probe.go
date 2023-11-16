@@ -275,9 +275,9 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 					decodePayload, err := base64.StdEncoding.DecodeString(*payload.Payload)
 					strPayload := string(decodePayload)
 
-					slog.Println(slog.DEBUG, "payload:", strPayload)
+					// slog.Println(slog.DEBUG, "payload:", strPayload)
 
-					slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
+					// slog.Println(slog.DEBUG, "PayloadPreHandle:", PayloadPreHandle(strPayload, addr))
 					if err != nil {
 						slog.Println(slog.DEBUG, err.Error())
 						continue
