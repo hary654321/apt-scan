@@ -177,6 +177,8 @@ func TcpSend(protocol, addr, payload string, timeout int) (string, error) {
 	if err != nil {
 		slog.Println(slog.DEBUG, "conn:", err)
 		return "", err
+	} else {
+		slog.Println(slog.DEBUG, "连接成功:", err)
 	}
 	defer conn.Close()
 
@@ -219,7 +221,7 @@ func TcpSend(protocol, addr, payload string, timeout int) (string, error) {
 			break
 		}
 	}
-	slog.Println(slog.DEBUG, "dump", hex.Dump(buf.Bytes()))
+	slog.Println(slog.DEBUG, "string", string(buf.Bytes()))
 
 	return hex.EncodeToString(buf.Bytes()), nil
 }

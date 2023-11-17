@@ -26,9 +26,10 @@ func TestReg(t *testing.T) {
 	fmt.Println("Match: ", match, " Error: ", err)
 }
 
+// b5ce1a0a3349aeeb00000000a002faf036a70000020405b40402080a00851e480000000001030307
 func Test_frp(t *testing.T) {
 
-	resp, err := TcpSend("tcp", "192.168.56.139:7000", "9a1fdc41ffedd3648a038f23c6e08774-00000000000000010000000b-5096d592ef438333af4cee-000000000000000100000010-94b2af7a914cd002ae67f519288a2fe0000000000000000100000043", 5)
+	resp, err := TcpSend("tcp", "192.168.56.132:6666", "707764", 9)
 	log.Println("Scan:", resp, err)
 
 }
