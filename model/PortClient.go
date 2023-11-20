@@ -62,7 +62,7 @@ func GetRunTasks() string {
 func NewPortTask(p *ProbeReqParam) *scanner.PortClient {
 	PortConfig := scanner.DefaultConfig()
 	PortConfig.Threads = p.Threads
-	PortConfig.Timeout = time.Duration(p.Timeout) * time.Second // getTimeout(len(app.Setting.Port))
+	PortConfig.Timeout = 5 * time.Second // getTimeout(len(app.Setting.Port))
 	EngineArr[p.TaskId] = scanner.NewPortScanner(PortConfig, p.TaskId)
 	TakData[p.TaskId] = p
 	client := EngineArr[p.TaskId]

@@ -25,12 +25,11 @@ func Start(ctx *gin.Context) {
 		goto ERR
 	}
 
-	slog.Println(slog.DEBUG, params.Payloads)
-
 	if err = params.IsValid(); err != nil {
 		goto ERR
 	}
 
+	slog.Println(slog.DEBUG, "params", params)
 	portScanner = model.NewPortTask(params)
 
 	go portScanner.Start()
@@ -39,6 +38,8 @@ func Start(ctx *gin.Context) {
 	portScanner.Total = len(params.ScanAddrs) * len(utils.TOP_1000)
 	for _, addr := range params.ScanAddrs {
 		for _, port := range utils.TOP_1000 {
+
+			// slog.Println(slog.DEBUG, "portScanner", addr, "=", port)
 			go portScanner.Push(net.ParseIP(addr), port)
 		}
 

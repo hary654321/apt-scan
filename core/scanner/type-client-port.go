@@ -44,7 +44,7 @@ func NewPortScanner(config *Config, taskId string) *PortClient {
 	client.pool.Function = func(in interface{}) {
 		//println(1)
 		nmap := gonmap.New()
-		nmap.SetTimeout(time.Second * time.Duration(config.Timeout))
+		nmap.SetTimeout(config.Timeout)
 		//if config.DeepInspection == true {
 		//	nmap.OpenDeepIdentify()
 		//}
@@ -92,4 +92,3 @@ func (c *PortClient) Push(ip net.IP, num int) {
 	}
 
 }
-
