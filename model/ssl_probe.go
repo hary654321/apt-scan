@@ -48,11 +48,12 @@ type ProbeReqParam struct {
 
 // ReqTcp tcp请求对象封装
 type ReqParams struct {
-	Addr      string `json:"addr"` //ip:port
-	Timeout   int    `json:"-"`    //请求超时时间
-	Payload   string `json:"-"`    //原请求的payload信息
-	ProbeName string `json:"probe_name"`
-	MT        string `json:"probe_match_type"`
+	Addr          string `json:"addr"` //ip:port
+	Timeout       int    `json:"-"`    //请求超时时间
+	Payload       string `json:"-"`    //原请求的payload信息
+	ProbeName     string `json:"probe_name"`
+	MT            string `json:"probe_match_type"`
+	ProbeProtocol string `json:"probe_protocol"`
 }
 
 // IsValid 校验参数
@@ -142,20 +143,22 @@ func (task *ProbeTask) ScanSchedule(params ReqParams) {
 	var isTls int
 	var certData CertData
 
-	//TLS判断
-	tlsFlagHalf, certDataHalf := CheckIsTlsAndParseCert(params.Addr)
-	if tlsFlagHalf == IsTLS {
-		isTls = IsTLS
-		if len(certDataHalf.Thumbprint) > 0 {
-			certData = certDataHalf
-		}
-	}
-	if len(certDataHalf.Thumbprint) == 0 {
-		tlsFlagFull, certDataFull := CheckIsTlsFullAndParseCert(params.Addr)
-		if tlsFlagFull == IsTLS {
+	if params.ProbeProtocol == "HTTP" {
+		//TLS判断
+		tlsFlagHalf, certDataHalf := CheckIsTlsAndParseCert(params.Addr)
+		if tlsFlagHalf == IsTLS {
 			isTls = IsTLS
-			if len(certDataFull.Thumbprint) > 0 {
-				certData = certDataFull
+			if len(certDataHalf.Thumbprint) > 0 {
+				certData = certDataHalf
+			}
+		}
+		if len(certDataHalf.Thumbprint) == 0 {
+			tlsFlagFull, certDataFull := CheckIsTlsFullAndParseCert(params.Addr)
+			if tlsFlagFull == IsTLS {
+				isTls = IsTLS
+				if len(certDataFull.Thumbprint) > 0 {
+					certData = certDataFull
+				}
 			}
 		}
 	}
@@ -284,11 +287,12 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 					}
 					slog.Println(slog.DEBUG, "payload:", addr+":"+port)
 					ReqHttpParam := ReqParams{
-						Addr:      addr + ":" + port,
-						Timeout:   p.Timeout,
-						Payload:   PayloadPreHandle(strPayload, addr),
-						ProbeName: payload.ProbeName,
-						MT:        payload.MT,
+						Addr:          addr + ":" + port,
+						Timeout:       p.Timeout,
+						Payload:       PayloadPreHandle(strPayload, addr),
+						ProbeName:     payload.ProbeName,
+						MT:            payload.MT,
+						ProbeProtocol: payload.ProbeProtocol,
 					}
 					task.ChReq <- ReqHttpParam
 					task.ChMaxThread <- struct{}{}
@@ -356,36 +360,9 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 	var resp string
 	res = &PeerProbeResult{}
 
-	if isTls == IsTLS {
-		resp, err = HttpSend("tls", req.Addr, req.Payload, req.Timeout)
+	slog.Println(slog.DEBUG, "req.Payload", req.ProbeProtocol)
 
-		if err != nil {
-			slog.Println(slog.DEBUG, "resp:", resp, "err:", err)
-			return res, err
-		}
-		if len(resp) == 0 {
-			err = errors.New("no result")
-			//return res, err
-		}
-		res.ResPlain = resp
-
-		res.ResHex = "" // hex.Dump([]byte(resp))
-
-	} else if strings.Contains(req.Payload, "HTTP") {
-		resp, err = HttpSend("tcp", req.Addr, req.Payload, req.Timeout)
-		if err != nil {
-			// slog.Println(slog.DEBUG, "http", req.Addr, "====", req.Payload, err)
-			return res, err
-		}
-		if len(resp) == 0 {
-			err = errors.New("no result")
-			//return res, err
-		}
-		res.ResPlain = resp
-
-		res.ResHex = "" // hex.Dump([]byte(resp))
-	} else {
-
+	if req.ProbeProtocol == "TCP" {
 		resp, err = TcpSend("tcp", req.Addr, req.Payload, req.Timeout)
 
 		if err != nil {
@@ -401,6 +378,36 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 		// dump, _ := hex.DecodeString(resp)
 
 		res.ResHex = "" // hex.Dump(dump)
+	} else {
+		if isTls == IsTLS {
+			resp, err = HttpSend("tls", req.Addr, req.Payload, req.Timeout)
+
+			if err != nil {
+				slog.Println(slog.DEBUG, "resp:", resp, "err:", err)
+				return res, err
+			}
+			if len(resp) == 0 {
+				err = errors.New("no result")
+				//return res, err
+			}
+			res.ResPlain = resp
+
+			res.ResHex = "" // hex.Dump([]byte(resp))
+
+		} else {
+			resp, err = HttpSend("tcp", req.Addr, req.Payload, req.Timeout)
+			if err != nil {
+				// slog.Println(slog.DEBUG, "http", req.Addr, "====", req.Payload, err)
+				return res, err
+			}
+			if len(resp) == 0 {
+				err = errors.New("no result")
+				//return res, err
+			}
+			res.ResPlain = resp
+
+			res.ResHex = "" // hex.Dump([]byte(resp))
+		}
 	}
 
 	res.ReqInfo = req
