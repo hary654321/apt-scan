@@ -43,7 +43,7 @@ type ProbeReqParam struct {
 	Payloads    []Probe  `json:"payload,omitempty" validate:"required,dive,required"` //探针详情,http报文或者tcp报文
 	ServiceType string   `json:"service_type,required" validate:"required"`           //服务类型
 	Timeout     int      `json:"timeout,omitempty" validate:"required"`               //发起请求读超时
-	Threads     int      `json:"threads" validate:"min=1,max=8192,required"`          //最大执行goroutine数量
+	Threads     int      `json:"threads" validate:"min=1,max=50000,required"`         //最大执行goroutine数量
 }
 
 // ReqTcp tcp请求对象封装
@@ -285,7 +285,7 @@ func (task *ProbeTask) Product(ctx context.Context, p *ProbeReqParam) {
 						slog.Println(slog.DEBUG, err.Error())
 						continue
 					}
-					slog.Println(slog.DEBUG, "payload:", addr+":"+port)
+					// slog.Println(slog.DEBUG, "payload:", addr+":"+port)
 					ReqHttpParam := ReqParams{
 						Addr:          addr + ":" + port,
 						Timeout:       p.Timeout,
@@ -360,7 +360,7 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 	var resp string
 	res = &PeerProbeResult{}
 
-	slog.Println(slog.DEBUG, "req.Payload", req.ProbeProtocol)
+	// slog.Println(slog.DEBUG, "req.Payload", req.ProbeProtocol)
 
 	if req.ProbeProtocol == "TCP" {
 		resp, err = TcpSend("tcp", req.Addr, req.Payload, req.Timeout)

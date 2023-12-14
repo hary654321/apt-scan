@@ -40,3 +40,10 @@ func Test_NC(t *testing.T) {
 	log.Println("Scan:", resp, err)
 
 }
+
+func Test_Msf(t *testing.T) {
+
+	resp, err := TcpSend("tcp", "192.168.56.141:4444", "6c730a", 6)
+	log.Println("Scan:", resp, err)
+
+}
