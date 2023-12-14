@@ -138,7 +138,7 @@ func getTotal(Payloads []Probe) (total int) {
 
 func (task *ProbeTask) ScanSchedule(params ReqParams) {
 
-	slog.Println(slog.DEBUG, "MT=====", params.MT)
+	// slog.Println(slog.DEBUG, "MT=====", params.MT)
 	var res = &SSLProbeResult{}
 	var isTls int
 	var certData CertData
