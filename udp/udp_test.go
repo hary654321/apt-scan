@@ -52,8 +52,8 @@ func TestUdpServer(t *testing.T) {
 func TestUdpClient(t *testing.T) {
 	// 连接服务器
 	conn, err := net.DialUDP("udp", nil, &net.UDPAddr{
-		IP:   net.IPv4(127, 0, 0, 1),
-		Port: 9090,
+		IP:   net.IPv4(192, 168, 56, 32),
+		Port: 6666,
 	})
 
 	if err != nil {
@@ -62,7 +62,7 @@ func TestUdpClient(t *testing.T) {
 	}
 
 	// 发送数据
-	_, err1 := conn.Write([]byte(fmt.Sprintf("udp testing:%v", "hi")))
+	_, err1 := conn.Write([]byte("pwd"))
 	if err1 != nil {
 		log.Println("Send data failed,err:", err)
 		return

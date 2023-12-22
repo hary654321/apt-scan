@@ -362,8 +362,8 @@ func Scan(req ReqParams, isTls int) (res *PeerProbeResult, err error) {
 
 	// slog.Println(slog.DEBUG, "req.Payload", req.ProbeProtocol)
 
-	if req.ProbeProtocol == "TCP" {
-		resp, err = TcpSend("tcp", req.Addr, req.Payload, req.Timeout)
+	if req.ProbeProtocol == "TCP" || req.ProbeProtocol == "UDP" {
+		resp, err = TcpSend(req.ProbeProtocol, req.Addr, req.Payload, req.Timeout)
 
 		if err != nil {
 			// slog.Println(slog.DEBUG, "tcp:", resp, err)

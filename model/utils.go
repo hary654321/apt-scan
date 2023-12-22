@@ -172,7 +172,7 @@ func TcpSend(protocol, addr, payload string, timeout int) (string, error) {
 	var err error
 	var conn net.Conn
 
-	conn, err = net.DialTimeout("tcp", addr, time.Duration(timeout)*time.Second)
+	conn, err = net.DialTimeout(strings.ToLower(protocol), addr, time.Duration(timeout)*time.Second)
 
 	if err != nil {
 		slog.Println(slog.DEBUG, "conn:", err)

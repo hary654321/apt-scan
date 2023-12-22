@@ -36,7 +36,7 @@ func Test_frp(t *testing.T) {
 
 func Test_NC(t *testing.T) {
 
-	resp, err := TcpSend("tcp", "192.168.56.132:6666", "7077640a", 8)
+	resp, err := TcpSend("UDP", "192.168.56.132:6666", "7077640a", 10)
 	log.Println("Scan:", resp, err)
 
 }
